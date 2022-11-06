@@ -1,14 +1,12 @@
-from distutils.command import clean
 import pandas as pd
 import numpy as np
 import time
 import plotly.express as px
-import plotly.graph_objects as go
 from dash import Dash, html, dcc, Input, Output
 
 start = time.time()
 
-def scraper_html(url):
+def url_scraper(url):
     """
     Extrait les données de l'url donnée
 
@@ -24,7 +22,7 @@ def scraper_html(url):
 def clean_data_html(df):
     """
     Nettoie la dataframe extraite à partir de l'url en enlevant toutes 
-    les colonnes inutiles et convertie les données dans les bons dtypes
+    les colonnes inutiles, les doublons
 
     Args :
         df : dataframe brut/extraite
@@ -32,57 +30,49 @@ def clean_data_html(df):
     Returns :
         df : dataframe nettoyée
     """
-    # nettoyage de la df
     asup = df[df['Rk']=='Rk']
     df.drop(asup.index, axis=0,inplace=True)
+
+    # on supprime les colonnes de rebonds ect...
     df.drop(df.columns[[0,6,21,22,23,24,25,26,27,28]],axis=1,inplace=True)
+
+    # on supprime les doublons pour les joueues ayant changer d'équipe durant la saison
     df = df.drop_duplicates(subset=['Player'])
 
-    # création de subset pour les convertions
+    return df
+
+def convert_data_html(df):
+    """
+    Convertie toutes les colonnes dans les bon dtypes 
+    + création de colonnes associées au pts par type de shot
+
+    Args :
+        df : dataframe brut/extraite
+
+    Returns :
+        df : dataframe nettoyée
+    """
+    # on crée des subsets pour les conversions
     varfloat = df[['FG%','3P%','2P%','eFG%','FT%']]
-    varint = df[['Age','G','MP','FG','FGA','3P','3PA','2P','2PA','PTS','FT','FTA']]
-
+    varint = df[['Age','G','MP','FG','FGA','3P','3PA','2P','2PA','PTS','FT','FTA']]  
     # conversion avec les bon dtypes
-    for col in varfloat.columns :
+    for col in varfloat.columns:
         if col in varfloat :
-            df[col]=df[col].astype('float') # a modfier et utiliser .loc ou .at
-
-    for col in varint.columns :
+            df[col]=df[col].astype('float')
+    for col in varint.columns:
         if col in varint :
             df[col]=df[col].astype('int')
 
     df['Player']=df['Player'].astype('string')
     df['Tm']=df['Tm'].astype('string')
     df['Pos']=df['Pos'].astype('category')
-    
-    # print(df)
-    return df
 
-def clean_data_csv(df):
-    """
-    Nettoie la 2e dataframe extraite du csv en enlevant toutes 
-    les colonnes inutiles et convertie les données dans les bons dtypes
+    # création de colonnes associées au pts par type de shot 
+    # par ex : nb de pts pour les tir à 3pts = 3P * 3
+    # et les Free Throws valent chacun 1pts
+    df['3PTS']=df['3P']*3
+    df['2PTS']=df['2P']*2
 
-    Args :
-        df : la dataframe extraite du csv
-    
-    Returns : 
-        df : la dataframe nettoyée
-    """
-    # nettoyage de la df, on enlève les colonnes inutiles
-    df.drop(df.columns[[0,1,2,3,5,6,7,8,9,10,19,20,22,23]],axis=1,inplace=True)
-
-    # création de subset pour les convertions
-    varcat = df[['SHOT_TYPE','SHOT_ZONE_BASIC','SHOT_ZONE_AREA','SHOT_ZONE_RANGE','ACTION_TYPE']]
-
-    # conversion avec les bon dtypes
-    for col in varcat.columns:
-        if col in varcat :
-            df[col]=df[col].astype('category')
-
-    df['PLAYER_NAME']=df['PLAYER_NAME'].astype('string')
-    df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'], format='%Y%m%d')
-    # print(df)
     return df
 
 def top_ten(df,cat):
@@ -97,31 +87,10 @@ def top_ten(df,cat):
         dfsorted : la dataframe triée des 10 meilleurs joueurs selon le critère choisi
     """
     dfsorted = df.sort_values(by=[cat],ascending=False).head(10)
-    # print(dfsorted)
 
     return dfsorted
 
-def prep_query(df): # a mettre dans le main???
-    """
-    on formate les dates de début et fin de saison pour
-    pouvoir utiliser le query correctement.
-
-    Args : 
-        df : dataframe 
-
-    Retruns : 
-        dico : dictionnaire dont les clés sont des années et les valeurs
-        sont les données, sous forme de dataframe, correspondantes à la saison
-    """
-    dico = {}
-    for year in range(2003,2018,1):
-        start_date = str(year)+'-10'
-        end_date = str(year+1) +'-05'
-        dico[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
-
-    return dico
-
-def histo(df,xaxis,yaxis,titre):
+def histo (df,xaxis,yaxis,titre):
     """
     Créé un histogramme en fonction des différents paramètres
 
@@ -135,8 +104,67 @@ def histo(df,xaxis,yaxis,titre):
         fig : le graphique correspondant
     """
     fig = px.histogram(df, x=xaxis,y=yaxis,histfunc='sum',title=titre)
-    # fig.show()
+
     return fig
+
+def clean_data_csv(df):
+    """
+    Nettoie la 2e dataframe extraite du csv en enlevant toutes les colonnes inutiles
+
+    Args :
+        df : la dataframe extraite du csv
+    
+    Returns : 
+        df : la dataframe nettoyée
+    """
+    df.drop(df.columns[[0,1,2,3,5,6,7,8,9,10,19,20,22,23]],axis=1,inplace=True)
+    return df
+
+def convert_data_csv(df):
+    """
+    Convertie toutes les colonnes dans les bon dtypes 
+    + création de colonnes associées au pts par type de shot
+
+    Args :
+        df : dataframe brut/extraite
+
+    Returns :
+        df : dataframe nettoyée
+    """
+    # création de subset pour les convertions
+    varcat = df[['SHOT_TYPE','SHOT_ZONE_BASIC','SHOT_ZONE_AREA','SHOT_ZONE_RANGE','ACTION_TYPE']]
+    
+    # conversion avec les bons dtypes
+    for col in varcat.columns:
+        if col in varcat :
+            df[col]=df[col].astype('category')
+
+    df['PLAYER_NAME']=df['PLAYER_NAME'].astype('string')
+
+    df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'], format='%Y%m%d')
+
+    return(df)
+
+
+def prep_query(dico,df):
+    """
+    on formate les dates de début et fin de saison pour
+    pouvoir utiliser le query correctement.
+
+    Args :
+        dico : le dictionnaire qui va accueillir les données\n 
+        df : dataframe 
+
+    Retruns : 
+        dico : dictionnaire dont les clés sont des années et les valeurs
+        sont les données, sous forme de dataframe, correspondantes à la saison
+    """
+    for year in range(2003,2018,1):
+        start_date = str(year)+'-10'
+        end_date = str(year+1) +'-05'
+        dico[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
+
+    return dico
 
 def ellipse_arc(x_center=0, y_center=0, a=1, b =1, start_angle=0, end_angle=2*np.pi, N=100, closed= False):
     """
@@ -153,7 +181,8 @@ def ellipse_arc(x_center=0, y_center=0, a=1, b =1, start_angle=0, end_angle=2*np
         path += f'L{x[k]}, {y[k]}'
     if closed:
         path += ' Z'
-    return path    
+
+    return path
 
 def trace_terrain(fig3):
     """
@@ -216,54 +245,82 @@ def trace_terrain(fig3):
 
     return fig3
 
-
-
 url = 'https://www.basketball-reference.com/leagues/NBA_2018_totals.html'
-url2 = 'https://www.basketball-reference.com/leagues/NBA_2013_totals.html'
-url3 = 'https://www.basketball-reference.com/leagues/NBA_2004_totals.html'
-dfsaison = scraper_html(url)
-dfsaison = clean_data_html(dfsaison)
-dflebron = pd.read_csv('csv_geoloc.csv',delimiter = ';')
-dflebron = clean_data_csv(dflebron)
-# df2 = scraper_html(url2)
-# df2 = clean_data(df2)
-# df3 = scraper_html(url3)
-# df3 = clean_data(df3)
-dfsort = top_ten(dfsaison,'PTS')
-dicolebron = prep_query(dflebron)
-fig = histo(dfsort,'Player','PTS','PTS en fonction des joueurs')
-fig2 = histo(dfsaison,'Pos','PTS','PTS en fonction des positions')
-fig3 = px.scatter(dicolebron[2003],x='LOC_X',y='LOC_Y')
+
+df_url = url_scraper(url)
+df_url = clean_data_html(df_url)
+df_url = convert_data_html(df_url)
+
+dfsorted = top_ten(df_url,'PTS')
+fig = histo(dfsorted,'Player','PTS','PTS en fonction des top 10 joueurs')
+fig2 = histo(df_url,'Pos','FG','Field goal made by position')
+
+df_csv = pd.read_csv('csv_geoloc.csv',delimiter = ';')
+df_csv = clean_data_csv(df_csv)
+df_csv = convert_data_csv(df_csv)
+
+dicolebron={}
+dicolebron = prep_query(dicolebron,df_csv)
+
+fig3 = px.scatter(dicolebron[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_BASIC')
 fig3 = trace_terrain(fig3)
 
-# MAIN
 app = Dash(__name__)
-
 app.layout = html.Div(children=[
 
-html.H1(children='NBA Dashboard geoloc'),
+    html.H1(children='NBA Dashboard'),
 
-html.Label('Season : '),
+    html.Label('Type of field goals : '),
 
     # my input 
-     dcc.Slider(2003, 2017, 
-        step=1,
+    dcc.Checklist(
+        id='point-checklist',
+        options=[
+            {'label':'3P (3-Points Field Goals)', 'value':'3PTS'},
+            {'label':'2P (2-Points Field Goals)', 'value':'2PTS'},
+            {'label':'FT (Free Throws)', 'value':'FT'},
+        ],
+    ),
+
+    # my output : the Graph figure = fig
+    dcc.Graph(
+        id='graph1',
+        figure=fig
+    ),
+
+    html.Label('Type of field goals : '),
+    
+    dcc.Checklist(
+        id='point-checklist2',
+        options=[
+            {'label':'3P (3-Points Field Goals)', 'value':'3PTS'},
+            {'label':'2P (2-Points Field Goals)', 'value':'2PTS'},
+            {'label':'FT (Free Throws)', 'value':'FT'},
+        ],
+    ),
+
+    dcc.Graph(
+        id='graph2',
+        figure=fig2
+    ),
+
+    html.Label('Season : '),
+
+    # my input 
+    dcc.Slider(2003,2017, 
+        step =1,
         marks={
-          2003 : '2003',
-          2004 : '2004',
-          2005 : '2005',
-          2006 : '2006',
-          2007 : '2007',
-          2008 : '2008',
-          2009 : '2009',
-          2010 : '2010',
-          2011 : '2011',
-          2012 : '2012',
-          2013 : '2013',
-          2014 : '2014',
-          2015 : '2015',
-          2016 : '2016',
-          2017 : '2017',
+            2003 : '2003-2004',
+            2004 : '2004-2005',
+            2005 : '2005-2006',
+            2006 : '2006-2007',
+            2007 : '2007-2008',
+            2008 : '2008-2009',
+            2009 : '2009-2010',
+            2014 : '2014-2015',
+            2015 : '2015-2016',
+            2016 : '2016-2017',
+            2017 : '2017-2018',
         },
         id='years-slider',
         value=2003
@@ -271,7 +328,7 @@ html.Label('Season : '),
 
     # my output : the Graph figure = fig 
     dcc.Graph(
-        id='graph1',
+        id='graph3',
         figure=fig3
     ),
 
@@ -281,25 +338,41 @@ html.Label('Season : '),
 ])
 
 @app.callback(
-        Output(component_id='graph1', component_property='figure'),
-        # Output(component_id='graph2', component_property='figure'),
-        Input(component_id='years-slider', component_property='value'),
-        # Input(component_id='point-checklist2', component_property='value'),
+    Output(component_id='graph1', component_property='figure'),
+    Output(component_id='graph2', component_property='figure'),
+    Output(component_id='graph3', component_property='figure'),
+    Input(component_id='point-checklist', component_property='value'),
+    Input(component_id='point-checklist2', component_property='value'),
+    Input(component_id='years-slider', component_property='value'),
 )
-
-def update_figure(input_value):
+def update_figure(input_value,input_value2,input_value3):
+    fig = px.histogram(
+        dfsorted, 
+        x='Player',
+        y= input_value,
+        histfunc='sum',
+        title='Top 10 Players by type of points'
+    ) 
+    fig2 = px.histogram(
+        df_url, 
+        x='Pos',
+        y= input_value2,
+        histfunc='sum',
+        title='Type of Goals made by Position'
+    ) 
     fig3 = px.scatter(
-        dfsaison[input_value],
+        dicolebron[input_value3],
         x='LOC_X',
         y='LOC_Y',
-        # color='SHOT_ZONE_BASIC'  
+        color='SHOT_ZONE_BASIC'  
     )
     trace_terrain(fig3),
-    return fig3
 
-    
+    return fig, fig2,fig3
+
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
+
 
 end = time.time() 
 

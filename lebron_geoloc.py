@@ -34,20 +34,20 @@ df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'], format='%Y%m%d')
 
 # on rajoute des colonnes pour les graphs et compter le nombre de points
 
-df['2PT_COMPTEUR']=0
-df['3PT_COMPTEUR']=0
-compteur2PT= 0
-compteur3PT= 0
-for index, value in df['SHOT_TYPE'].items():
-    # print(index,'-',value)
-    if value=='2PT Field Goal':
-        # compteur2PT+=1
-        # df['2PT_COMPTEUR'].at[index]=compteur2PT
-        df['2PT_COMPTEUR'].at[index]= 1
-    elif value== '3PT Field Goal':
-        # compteur3PT+=1
-        # df['3PT_COMPTEUR'].at[index]=compteur3PT
-        df['3PT_COMPTEUR'].at[index]=1
+# df['2PT_COMPTEUR']=0
+# df['3PT_COMPTEUR']=0
+# compteur2PT= 0
+# compteur3PT= 0
+# for index, value in df['SHOT_TYPE'].items():
+#     # print(index,'-',value)
+#     if value=='2PT Field Goal':
+#         # compteur2PT+=1
+#         # df['2PT_COMPTEUR'].at[index]=compteur2PT
+#         df['2PT_COMPTEUR'].at[index]= 1
+#     elif value== '3PT Field Goal':
+#         # compteur3PT+=1
+#         # df['3PT_COMPTEUR'].at[index]=compteur3PT
+#         df['3PT_COMPTEUR'].at[index]=1
 # print(df)
 
 # les graphs
@@ -153,21 +153,17 @@ app.layout = html.Div(children=[
      dcc.Slider(2003, 2017, 
         step=1,
         marks={
-          2003 : '2003',
-          2004 : '2004',
-          2005 : '2005',
-          2006 : '2006',
-          2007 : '2007',
-          2008 : '2008',
-          2009 : '2009',
-          2010 : '2010',
-          2011 : '2011',
-          2012 : '2012',
-          2013 : '2013',
-          2014 : '2014',
-          2015 : '2015',
-          2016 : '2016',
-          2017 : '2017',
+          2003 : '2003-2004',
+          2004 : '2004-2005',
+          2005 : '2005-2006',
+          2006 : '2006-2007',
+          2007 : '2007-2008',
+          2008 : '2008-2009',
+          2009 : '2009-2010',
+          2014 : '2014-2015',
+          2015 : '2015-2016',
+          2016 : '2016-2017',
+          2017 : '2017-2018',
         },
         id='years-slider',
         value=2003
@@ -195,7 +191,7 @@ def update_figure(input_value):
         dfsaison[input_value],
         x='LOC_X',
         y='LOC_Y',
-        color='SHOT_ZONE_BASIC'  
+        color='SHOT_ZONE_BASIC',
     )
     trace_terrain(fig3),
     return fig3
