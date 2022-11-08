@@ -127,7 +127,7 @@ ui <- fluidPage( theme =shinytheme("united"),
                                                        label = "Year",
                                                         min = 2003,
                                                         max = 2017,
-                                                        value = c("2003","2004","2005","2006","2007","2008","2009","2O10","2014","2015","2016","2017"),
+                                                        value = 2003,
                                                         step = 1,
                                     
                                                 )
