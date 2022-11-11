@@ -92,6 +92,18 @@ server <- function(input, output) {
         theme(text = element_text(size = 20))
       
     })
+    
+#################################################################################################################    
+    
+    output$plot3 <- renderPlot({ 
+      
+      season_shots = Lebron_geo_shots[Lebron_geo_shots$GAME_DATE >= paste0(input$shoot_year,-10) & Lebron_geo_shots$GAME_DATE <=paste0(input$shoot_year+1,-4) , ]
+      
+      
+      gg_court + geom_point(data = season_shots, aes(LOC_X, LOC_Y)) 
+      
+      
+    })
       
 }
 
