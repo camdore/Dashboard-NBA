@@ -32,64 +32,9 @@ df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'], format='%Y%m%d')
 
 # csv_data = df.to_csv('lebron_geoloc_clean.csv',encoding = 'utf8',index=False)
 
-# on rajoute des colonnes pour les graphs et compter le nombre de points
 
-dicosaison={}
-dfvaluecount = pd.DataFrame(index=range(0, 30))
-dfyear = pd.DataFrame(index=range(0, 30))
-# dfyear.columns=['Index','Year']
-l = []
-l1 = []
 # boucle pour query et avoir le bon format de date pour les débuts et fins de saison
-# for year in range(2003,2018,1):
-#     start_date = str(year)+'-10'
-#     end_date = str(year+1) +'-05'
-#     dicosaison[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
-
-
-#     dfsaison = pd.DataFrame.from_dict(dicosaison[year])
-#     dfsaison['COMPTEUR']= 1
-
-#     compteur2PT= 1
-#     compteur3PT= 1
-#     for index, value in dfsaison['SHOT_TYPE'].items():
-#         mem3 = compteur3PT
-#         mem2 = compteur2PT 
-
-#         if value =='2PT Field Goal':
-#             compteur2PT+=1
-#             dfsaison['COMPTEUR'].at[index]=mem2
-
-#         elif value == '3PT Field Goal':
-#             compteur3PT+=1
-#             dfsaison['COMPTEUR'].at[index]=mem3
-
-#     year = pd.Series(year)
-#     value_count = dfsaison['SHOT_TYPE'].value_counts()
-#     value_count = str(value_count)
-#     x = value_count.split()
-#     y = tuple((x[3],x[7]))
-#     for value in y:
-#         y[value]=int(y[value])
-#     print(y)
-#     l1.append(year)
-#     l1.append(year)
-#     l.append(value_count)
-    # l1 = pd.Series(l1)
-    # print(type(l1))
-# dfvaluecount = pd.concat([value_count],ignore_index=True)
-# dffinale = pd.concat([dfvaluecount])
-# id = [i for i in range(0,30)]
-# dfvaluecount = dfvaluecount.set_index(id)
-# dfvaluecount = pd.concat(l)
-# print(dfvaluecount.shape)
-# dfyear = pd.concat(l1,ignore_index=True)
-# dfyear.columns = ['Year']
-# # print(dfyear)
-
-# # print(dfyear)
-# dffinal = pd.concat([dfyear, dfvaluecount],axis=1, ignore_index=True)
-# print(dffinal)
+dicosaison={}
 dfinter = pd.DataFrame(columns=['Year','2PT Field Goal','3PT Field Goal'])
 dicointer={}
 # serie2pt = pd.Series()
@@ -99,6 +44,7 @@ for year in range(2003,2018,1):
     start_date = str(year)+'-10'
     end_date = str(year+1) +'-05'
     dicosaison[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
+
 l2pt =[]
 l3pt = []
 lyear = []
@@ -113,43 +59,22 @@ s3pt = pd.Series(l3pt)
 syear = pd.Series(lyear)
 dfinter = pd.concat([syear,s2pt,s3pt],keys=['Year', '2PT Field Goal','3PT Field Goal'],axis=1)
 # print(dfinter)
+
 # les graphs
-
-
-# dfquery={'2PT Field Goal':df.query('SHOT_TYPE == "2PT Field Goal"'),'3PT Field Goal':df.query('SHOT_TYPE == "3PT Field Goal"')}
-# df_2shot = df.query('SHOT_TYPE == "2PT Field Goal"')
-# df_3shot = df.query('SHOT_TYPE == "3PT Field Goal"')
-# shot_type = df['SHOT_TYPE'].unique()
-# print(shot_type)
-# dfquery={type_shot:df.query("SHOT_TYPE == @type_shot") for type_shot in shot_type}
-# dfquery = dict()
-# dfquery['2PT Field Goal']=df_2shot
-# dfquery['3PT Field Goal']=df_3shot
-# dfgrp = df.groupby("SHOT_TYPE").mean()
-# print(dfgrp)
-
-# print(dfquery)
-# # print(type(dfquery))
-# print('cle',dfquery.keys(),'valeur',dfquery.values())
-
-
 fig = px.line(dfinter,x='Year',y='2PT Field Goal',title='Evolution des shots en fonction des années')
 # fig.show()
-# fig2 = px.histogram(df,x='GAME_DATE',y='SHOT_TYPE',histfunc='count',color='SHOT_TYPE')
-# fig2.show()
 
-dfsaison={}
-# boucle pour query et avoir le bon format de date pour les débuts et fins de saison
-for year in range(2003,2018,1):
-    start_date = str(year)+'-10'
-    end_date = str(year+1) +'-05'
-    dfsaison[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
-# print(dfsaison.keys())
+
+# dfsaison={}
+# # boucle pour query et avoir le bon format de date pour les débuts et fins de saison
+# for year in range(2003,2018,1):
+#     start_date = str(year)+'-10'
+#     end_date = str(year+1) +'-05'
+#     dfsaison[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
+
 # la géolocalisation
 
-
-
-fig3 = px.scatter(dfsaison[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_BASIC')
+fig3 = px.scatter(dicosaison[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_BASIC')
 # fig3 = px.scatter(df,x='LOC_X',y='LOC_Y',color='SHOT_ZONE_AREA')
 # fig3 = px.scatter(df,x='LOC_X',y='LOC_Y',color='SHOT_ZONE_RANGE')
 
@@ -281,7 +206,7 @@ app.layout = html.Div(children=[
 def update_figure(input_value,input_value2):
     
     fig3 = px.scatter(
-        dfsaison[input_value],
+        dicosaison[input_value],
         x='LOC_X',
         y='LOC_Y',
         color='SHOT_ZONE_BASIC',
