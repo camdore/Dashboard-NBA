@@ -268,9 +268,9 @@ fig3 = trace_terrain(fig3)
 app = Dash(__name__)
 app.layout = html.Div(children=[
 
-    html.H1(children='NBA Dashboard'),
+    html.H1(children='NBA Dashboard', style={'text-align':'center','font-family':'Arial'}),
 
-    html.Label('Type of field goals : '),
+    html.Label('Type of field goals : ',style={'font-family':'Arial'}),
 
     # my input 
     dcc.Checklist(
@@ -288,7 +288,7 @@ app.layout = html.Div(children=[
         figure=fig
     ),
 
-    html.Label('Type of field goals : '),
+    html.Label('Type of field goals : ',style={'font-family':'Arial'}),
     
     dcc.Checklist(
         id='point-checklist2',
@@ -304,7 +304,7 @@ app.layout = html.Div(children=[
         figure=fig2
     ),
 
-    html.Label('Season : '),
+    html.Label('Season : ',style={'font-family':'Arial'}),
 
     # my input 
     dcc.Slider(2003,2017, 
@@ -334,7 +334,7 @@ app.layout = html.Div(children=[
 
     html.Div(children='''
             Description of the graph above. Mouse over for details
-    '''),
+    ''',style={'font-family':'Arial'}),
 ])
 
 @app.callback(
@@ -368,7 +368,7 @@ def update_figure(input_value,input_value2,input_value3):
     )
     trace_terrain(fig3),
 
-    return fig, fig2,fig3
+    return fig,fig2,fig3
 
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
