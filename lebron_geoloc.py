@@ -64,14 +64,6 @@ dfinter = pd.concat([syear,s2pt,s3pt],keys=['Year', '2PT Field Goal','3PT Field 
 fig = px.line(dfinter,x='Year',y='2PT Field Goal',title='Evolution des shots en fonction des années')
 # fig.show()
 
-
-# dfsaison={}
-# # boucle pour query et avoir le bon format de date pour les débuts et fins de saison
-# for year in range(2003,2018,1):
-#     start_date = str(year)+'-10'
-#     end_date = str(year+1) +'-05'
-#     dfsaison[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
-
 # la géolocalisation
 
 fig3 = px.scatter(dicosaison[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_BASIC')
