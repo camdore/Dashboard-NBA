@@ -245,6 +245,34 @@ def trace_terrain(fig3):
 
     return fig3
 
+def data_inter(dico):
+    """
+    Crée une dataframe adaptée
+
+    Args : 
+        dico : dictionnaire qui est retourné par query et dont les clés sont des années et les valeurs
+        sont les données, sous forme de dataframe, correspondantes à la saison
+
+    Returns :
+        dfinter : la dataframe adaptée pour la figure 4 avec pour colonnes :
+        'Year', '2PT Field Goal','3PT Field Goal'
+    """
+    l2pt =[]
+    l3pt = []
+    lyear = []
+    for year, dataf in dico.items():
+        value_count = dataf['SHOT_TYPE'].value_counts()
+        l2pt = np.append(l2pt,value_count[0]).astype(int)
+        l3pt = np.append(l3pt,value_count[1]).astype(int)
+        lyear = np.append(lyear,year).astype(int)
+
+    s2pt = pd.Series(l2pt)
+    s3pt = pd.Series(l3pt)
+    syear = pd.Series(lyear)
+    dfinter = pd.concat([syear,s2pt,s3pt],keys=['Year', '2PT Field Goal','3PT Field Goal'],axis=1)
+
+    return dfinter
+
 url = 'https://www.basketball-reference.com/leagues/NBA_2018_totals.html'
 
 df_url = url_scraper(url)
@@ -252,8 +280,8 @@ df_url = clean_data_html(df_url)
 df_url = convert_data_html(df_url)
 
 dfsorted = top_ten(df_url,'PTS')
-fig = histo(dfsorted,'Player','PTS','PTS en fonction des top 10 joueurs')
-fig2 = histo(df_url,'Pos','FG','Field goal made by position')
+fig = histo(dfsorted,'Player','PTS','Points en fonction des top 10 joueurs')
+fig2 = histo(df_url,'Pos','FG','Paniers marqués en fonction de la position')
 
 df_csv = pd.read_csv('csv_geoloc.csv',delimiter = ';')
 df_csv = clean_data_csv(df_csv)
@@ -262,15 +290,19 @@ df_csv = convert_data_csv(df_csv)
 dicolebron={}
 dicolebron = prep_query(dicolebron,df_csv)
 
-fig3 = px.scatter(dicolebron[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_BASIC')
+fig3 = px.scatter(dicolebron[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_BASIC',title='Terrain de basket avec la géolocalisation de chaque panier marqués')
 fig3 = trace_terrain(fig3)
+
+dfinter = data_inter(dicolebron)
+
+fig4 = px.line(dfinter,x='Year',y='2PT Field Goal',title='Evolution des shots en fonction des années')
 
 app = Dash(__name__)
 app.layout = html.Div(children=[
 
     html.H1(children='NBA Dashboard', style={'text-align':'center','font-family':'Arial'}),
 
-    html.Label('Type of field goals : ',style={'font-family':'Arial'}),
+    html.Label('Type de paniers : ',style={'font-family':'Arial'}),
 
     # my input 
     dcc.Checklist(
@@ -288,7 +320,7 @@ app.layout = html.Div(children=[
         figure=fig
     ),
 
-    html.Label('Type of field goals : ',style={'font-family':'Arial'}),
+    html.Label('Type de paniers : ',style={'font-family':'Arial'}),
     
     dcc.Checklist(
         id='point-checklist2',
@@ -304,7 +336,7 @@ app.layout = html.Div(children=[
         figure=fig2
     ),
 
-    html.Label('Season : ',style={'font-family':'Arial'}),
+    html.Label('Saison : ',style={'font-family':'Arial'}),
 
     # my input 
     dcc.Slider(2003,2017, 
@@ -332,43 +364,68 @@ app.layout = html.Div(children=[
         figure=fig3
     ),
 
+    html.Label('Type de paniers :',style={'font-family':'Arial'}),
+
+    dcc.Checklist(
+        id='point-checklist3',
+        options=[
+            {'label':'3PTS', 'value':'3PT Field Goal'},
+            {'label':'2PTS', 'value':'2PT Field Goal'},
+        ],
+    ),
+
+    dcc.Graph(
+        id='graph4',
+        figure=fig4
+    ),
+
     html.Div(children='''
             Description of the graph above. Mouse over for details
-    ''',style={'font-family':'Arial'}),
+    ''',
+    style={'font-family':'Arial'}),
 ])
 
 @app.callback(
     Output(component_id='graph1', component_property='figure'),
     Output(component_id='graph2', component_property='figure'),
     Output(component_id='graph3', component_property='figure'),
+    Output(component_id='graph4', component_property='figure'),
     Input(component_id='point-checklist', component_property='value'),
     Input(component_id='point-checklist2', component_property='value'),
     Input(component_id='years-slider', component_property='value'),
+    Input(component_id='point-checklist3', component_property='value'),
 )
-def update_figure(input_value,input_value2,input_value3):
+def update_figure(input_value,input_value2,input_value3,input_value4):
     fig = px.histogram(
         dfsorted, 
         x='Player',
         y= input_value,
         histfunc='sum',
-        title='Top 10 Players by type of points'
+        title='Points en fonction des 10 meilleurs joueurs'
     ) 
     fig2 = px.histogram(
         df_url, 
         x='Pos',
         y= input_value2,
         histfunc='sum',
-        title='Type of Goals made by Position'
+        title='Paniers marqués en fonction de la position'
     ) 
     fig3 = px.scatter(
         dicolebron[input_value3],
         x='LOC_X',
         y='LOC_Y',
-        color='SHOT_ZONE_BASIC'  
+        color='SHOT_ZONE_BASIC',
+        title='Terrain de basket avec la géolocalisation de chaque panier marqués',
     )
     trace_terrain(fig3),
 
-    return fig,fig2,fig3
+    fig4 = px.line(
+        dfinter,
+        x = 'Year',
+        y = input_value4,
+        title='Evolution des type de shots en fonction des années',
+    )
+    return fig,fig2,fig3,fig4
 
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
