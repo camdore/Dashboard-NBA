@@ -43,7 +43,7 @@ ui <- fluidPage( theme =shinytheme("united"),
         # Show a plot of the generated distribution
         
         mainPanel(
-            plotOutput("distPlot"), width = 10)  # mainpanel
+            plotOutput("distPlot"), width = 12)  # mainpanel
         
     ) #sidebarPanel
         
@@ -65,12 +65,11 @@ ui <- fluidPage( theme =shinytheme("united"),
                ),
                
                mainPanel( 
-                      plotOutput("plot"), width = 10)
+                      plotOutput("plot"), width = 12)
              )
              
              
     ) # tabpanel 
-    
 
     ),#Menu 1
 ##################################################################################################################
@@ -88,15 +87,29 @@ ui <- fluidPage( theme =shinytheme("united"),
              ),
              
              mainPanel( 
-               plotOutput("plot1"), width = 10)
+               plotOutput("plot1"), width = 12)
            )
           
 ), # tabpanel 
+##############################################################################################################
+
+  tabPanel("Player's age and position",
+           
+           titlePanel("NBA playes's age and position"),
+           sidebarLayout( 
+             sidebarPanel(
+           selectInput(inputId = "age", label = "Ages", choices = list("Players ages" = "Age" )),
+          ),
+          mainPanel( 
+            plotOutput("plottt"), width = 12)
+          )
+           
+), #tabpanel
 ###############################################################################################################
           
           navbarMenu( "Lebron James statistics ",
                       
-                      tabPanel("Type of shoots",
+                      tabPanel("Field goals",
                                
                                titlePanel("Lebron James Field Goals over the years"),
                                sidebarLayout( 
@@ -108,7 +121,7 @@ ui <- fluidPage( theme =shinytheme("united"),
                                ),
                                
                                mainPanel( 
-                                 plotOutput("plot2"), width = 10)
+                                 plotOutput("plot2"), width = 12)
                                
                               ) # sidebarL
                       ),#tab panel
@@ -122,19 +135,17 @@ ui <- fluidPage( theme =shinytheme("united"),
                                
                                
                                sidebarLayout( 
-                                 sidebarPanel = (
-                                   sliderInput( inputId = "shoot_year",
-                                                       label = "Year",
-                                                        min = 2003,
-                                                        max = 2017,
-                                                        value = 2003,
-                                                        step = 1,
-                                    
-                                                )
-                                 ),
-                                 
-                                 mainPanel( 
-                                   plotOutput("plot3"), width = 10)
+                                 sidebarPanel(
+                                   
+                                   selectInput(inputId = "shot_zones", label = "Area:", choices = list("3 Points and 2 Points field goals" = "4" , "Shot zone area" = "5")),
+                                   
+                                   sliderInput( inputId = "shoot_year", label = "Year", min = 2003, max = 2017, value = 2003, step = 1)
+                                   
+                
+                                   ),
+                                 fluidRow(
+                                 column(width=9,
+                                   plotOutput("plot3"), height="100%"))
                                  
                                )
                                
@@ -147,8 +158,3 @@ ui <- fluidPage( theme =shinytheme("united"),
                       
               
 )) # fluid page
-    
-    
-    
-    
-  
