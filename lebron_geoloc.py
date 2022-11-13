@@ -10,14 +10,11 @@ start = time.time()
 
 # on lit notre csv ATTENTION AVEC LE FILE PATH
 df = pd.read_csv('csv_geoloc.csv',delimiter = ';')
-# print(df)
 
 # on drop les colonnes de period, gameID ect...   ON SUPP EVENT_TYPE?
 df.drop(df.columns[[0,1,2,3,5,6,7,8,9,10,19,20,22,23]],axis=1,inplace=True)
 
-
 # conversion avec les bons dtypes
-# print(df.dtypes)
 varcat = df[['SHOT_TYPE','SHOT_ZONE_BASIC','SHOT_ZONE_AREA','SHOT_ZONE_RANGE','ACTION_TYPE']]
 
 for col in varcat.columns:
@@ -28,19 +25,12 @@ df['PLAYER_NAME']=df['PLAYER_NAME'].astype('string')
 
 df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'], format='%Y%m%d')
 
-# print(df.dtypes)
-# print(df.head(10))
 
 # csv_data = df.to_csv('lebron_geoloc_clean.csv',encoding = 'utf8',index=False)
 
-
 # boucle pour query et avoir le bon format de date pour les débuts et fins de saison
 dicosaison={}
-dfinter = pd.DataFrame(columns=['Year','2PT Field Goal','3PT Field Goal'])
-dicointer={}
-# serie2pt = pd.Series()
-# serie3pt = pd.Series()
-# year = pd.Series()
+
 for year in range(2003,2018,1):
     start_date = str(year)+'-10'
     end_date = str(year+1) +'-05'
@@ -52,7 +42,6 @@ lyear = []
 for year, dataf in dicosaison.items():
     value_count = dataf['SHOT_ZONE_RANGE'].value_counts(sort=False)
     value_count2 = dataf['SHOT_ZONE_BASIC'].value_counts(sort=False)
-    # print(value_count,value_count2)
     l2pt = np.append(l2pt,value_count2[3]).astype(int)
     l3pt = np.append(l3pt,value_count[1]).astype(int)
     lyear = np.append(lyear,year).astype(int)
@@ -62,7 +51,6 @@ s3pt = pd.Series(l3pt)
 syear = pd.Series(lyear)
 dfinter = pd.concat([syear,s2pt,s3pt],keys=['Year', 'Mid-Range','3PT Field Goal(Above 24ft.)'],axis=1)
 dfinter = dfinter.drop([7,8,9,10])
-# print(dfinter)
 
 # les graphs
 fig = px.line(dfinter,x='Year',y='Mid-Range',title='Evolution des zones en fonction des années')
@@ -84,8 +72,8 @@ color_dict = {
     'Less Than 8 ft.': color_list[2], '24+ ft.': color_list[3],
     },
 }
-# la géolocalisation
 
+# la géolocalisation
 fig3 = px.scatter(
     dicosaison[2003],
     x='LOC_X',
@@ -94,8 +82,6 @@ fig3 = px.scatter(
     color_discrete_map = color_dict['zone_basic_color'],
     title='Terrain de basket avec la géolocalisation de chaque panier marqué'
 )
-fig5 = px.scatter(dicosaison[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_AREA')
-fig6 = px.scatter(dicosaison[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_RANGE')
 
 def trace_terrain(fig3):
     # set axes ranges pour avoir la moitié du terrain qui nous intéresse
@@ -161,12 +147,6 @@ def trace_terrain(fig3):
 
     return fig3
 
-trace_terrain(fig3)
-trace_terrain(fig5)
-trace_terrain(fig6)
-# fig3.show()
-# fig5.show()
-# fig6.show()
 
 # dashboard
 # visit http://127.0.0.1:8050/ in your web browser.
@@ -215,6 +195,7 @@ app.layout = html.Div(children=[
         id='graph1',
         figure=fig3
     ),
+
     dcc.Checklist(
         id='point-checklist2',
         options=[
@@ -234,13 +215,15 @@ app.layout = html.Div(children=[
 ])
 @app.callback(
     Output('color-radio', 'options'),
-    Input('zone-radio', 'value'))
+    Input('zone-radio', 'value')
+)
 def set_color_options(selected_zone):
     return [{'label': i, 'value': i} for i in all_options[selected_zone]]
 
 @app.callback(
     Output('color-radio', 'value'),
-    Input('color-radio', 'options'))
+    Input('color-radio', 'options')
+)
 def set_color_value(available_options):
     return available_options[0]['value']
 
