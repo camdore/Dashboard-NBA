@@ -48,12 +48,12 @@ L'utilisateur peut cocher les différentes cases et filtres à disposition. Il p
 
     projet-python/ 
 
+    |-- assets
+        |--positions_basket.jpg
+        
     |-- requirements.txt 
-
     |-- csv_geoloc.csv 
-
     |-- main.py 
-
     |-- README.md 
 
 ### Fonctions des différents fichiers 
