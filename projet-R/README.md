@@ -69,7 +69,7 @@ ui.R contient les informations de l'interface utilisateur definissant l'aspect g
 
 server.R contient le lignes de code pour la préparations des données et la construction des output correspondant aux interactions détectées sur l'ui.
 
-positions_basket.jpg est l'image qui vous permmettra réconnaitre le zones d'un terrain de basket.
+positions_basket.jpg est l'image qui vous permmettra de réconnaitre le zones du terrain de basket.
 
 ### Copyright
 
