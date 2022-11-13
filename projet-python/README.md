@@ -35,6 +35,10 @@ Placez vous d'abord dans le repertoire approprié avec la commande suivante :
 
     cd /path /projetnba / projet-python
 
+Pour éviter tout bug d'abord effectuer la commande suivante : 
+
+    pip list --format=freeze > requirements.txt 
+
 Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
    
     python -m pip install -r requirements.txt 
