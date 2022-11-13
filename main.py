@@ -463,18 +463,15 @@ app.layout = html.Div(children=[
 @app.callback(
     Output(component_id='graph1', component_property='figure'),
     Output(component_id='graph2', component_property='figure'),
-    Output(component_id='graph3', component_property='figure'),
     Output(component_id='graph4', component_property='figure'),
     Output(component_id='graph5', component_property='figure'),
     Input(component_id='point-checklist', component_property='value'),
     Input(component_id='point-checklist2', component_property='value'),
-    Input(component_id='years-slider', component_property='value'),
-    Input(component_id='radio-item', component_property='value'),
     Input(component_id='point-checklist3', component_property='value'),
     Input(component_id='point-checklist4', component_property='value'),
 )
 
-def update_figure(input_value,input_value2,input_value3,input_value4,input_value5,input_value6):
+def update_figure(input_value,input_value2,input_value3,input_value4):
     fig = px.histogram(
         dfsorted, 
         x='Player',
@@ -489,32 +486,39 @@ def update_figure(input_value,input_value2,input_value3,input_value4,input_value
         histfunc='sum',
         title='Paniers marqués en fonction de la position'
     ) 
-    fig3 = px.scatter(
-        dicolebron[input_value3],
-        x='LOC_X',
-        y='LOC_Y',
-        color= input_value4,
-        title='Terrain de basket avec la géolocalisation de chaque panier marqué',
-    )
-    trace_terrain(fig3),
-
     fig4 = px.line(
         dfinter,
         x = 'Year',
-        y = input_value5,
+        y = input_value3,
         title='Evolution des type de shots en fonction des années',
     )
     fig5 = px.histogram(
         df_url, 
         x='Age',
-        y= input_value6,
+        y= input_value4,
         histfunc='avg',
         title= "Paniers marqués en fonction de l'âge"
     )
-    # if input_value3 == 2010:
-    #     raise PreventUpdate
-    # else:
-    return fig,fig2,fig3,fig4,fig5
+
+    return fig,fig2,fig4,fig5
+
+
+@app.callback(
+    Output(component_id='graph3', component_property='figure'),
+    Input(component_id='years-slider', component_property='value'),
+    Input(component_id='radio-item', component_property='value'),
+)  
+
+def update_map(input_value,input_value2):
+    fig3 = px.scatter(
+            dicolebron[input_value],
+            x='LOC_X',
+            y='LOC_Y',
+            color= input_value2,
+            title='Terrain de basket avec la géolocalisation de chaque panier marqué',
+        )
+    trace_terrain(fig3),
+    return fig3
 
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
