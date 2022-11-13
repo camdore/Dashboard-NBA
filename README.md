@@ -17,26 +17,32 @@ Vous devez d’abord vous assurer d’avoir la dernière version de Python insta
 Si ce n’est pas le cas vous pouvez suivre les instructions d'installation [ici](https://www.python.org/downloads/).
 
 Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
-> ` $ python -m pip install -r requirements.txt `
+
+    $ python -m pip install -r requirements.txt 
 
 ### Installation 
 
 Pour installer l’application effectuer l’instruction suivante : 
-> ` $ git clone https://git.esiee.fr/amouzoue/projetnba `
 
+    $ git clone https://git.esiee.fr/amouzoue/projetnba 
+
+
+
+### Utilisation
 Pour lancer l’application sur Windows taper l’instruction suivante depuis le terminal : 
-> ` $ cd /path /projetnba `
->
-> ` $ python main.py `
+
+    $ cd /path /projetnba 
+
+    $ python main.py 
 
 Pour lancer l’application sur Linux/MacOS taper l’instruction suivante depuis le terminal : 
-> ` $ cd /path /projetnba `
->
-> ` $ python3 main.py `
+
+    $ cd /path /projetnba 
+
+    $ python3 main.py 
 
 L’application Dashboard tourne sur n'importe quel navigateur à l’adresse suivante : http://127.0.0.1:8050/
 
-### Utilisation
 L'utilisateur peut cocher les différentes cases et filtres à disposition. Il peut également passer la souris sur les graphiques pour avoir des informations numériques sur les graphiques.
 
 ## Developper Guide 
@@ -65,23 +71,27 @@ Je déclare sur l’honneur que le code fourni a été produit par moi/nous mêm
 
     def ellipse_arc(x_center=0, y_center=0, a=1, b =1, start_angle=0, end_angle=2*np.pi, N=100, closed= False):
 
-    t = np.linspace(start_angle, end_angle, N)
-    x = x_center + a*np.cos(t)
-    y = y_center + b*np.sin(t)
-    path = f'M {x[0]}, {y[0]}'
-    for k in range(1, len(t)):
-        path += f'L{x[k]}, {y[k]}'
-    if closed:
-        path += ' Z'
+        t = np.linspace(start_angle, end_angle, N)
+        x = x_center + a*np.cos(t)
+        y = y_center + b*np.sin(t)
+        path = f'M {x[0]}, {y[0]}'
+        for k in range(1, len(t)):
+            path += f'L{x[k]}, {y[k]}'
+        if closed:
+            path += ' Z'
 
     return path
 
-La fonction ellipse_arc vient du site suivant : https://community.plotly.com/t/arc-shape-with-path/7205/5 .
+La fonction `ellipse_arc` vient du site suivant : https://community.plotly.com/t/arc-shape-with-path/7205/5 .
 
-Parce que  dans la fonction add_shape() le paramètre path n'accepte pas les arcs de cercle (A) (doc officielle).
+Dans la fonction `add_shape()`, le paramètre path n'accepte pas les arcs de cercle (A) (doc officielle).
 
 ## Rapport d'analyse
 
+### Présentaion
+
+Ce projet à pour but de visualiser des données sur les types de tirs effectués lors de la saison 2017-2016. Il à également pour but d'observer l'évolution du jeu en NBA sur les 10 dernières années à travers les données d'un des meilleurs joueurs de l'histoire de la NBA : Lebron James.
+ 
 ### La saison 2017-2018
 
 
@@ -92,5 +102,7 @@ Parce que  dans la fonction add_shape() le paramètre path n'accepte pas les arc
 
 ### Conclusion 
 
+
 ## Auteurs 
+
 Camille Doré et Thomas Ekué 
