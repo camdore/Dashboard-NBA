@@ -77,6 +77,10 @@ requirement.txt contient les instructions pour installer les librairies nécessa
 
 csv_geoloc.csv contient les données pour les saisons 2003 à 2017 de Lebron James.
 
+functions.py contient les fonctions essentiellement utilisées pour le nettoyage de la dataframe
+
+Le répertoire assets contient l'image positions_basket.jpg utilisée dans le README.md   
+
 ### Copyright
 
 Je déclare sur l’honneur que le code fourni a été produit par moi/nous même, à l’exception des lignes ci dessous.
