@@ -31,9 +31,11 @@ Pour installer l’application effectuer l’instruction suivante :
 
     git clone https://git.esiee.fr/amouzoue/projetnba 
 
-Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
+Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante (d'abord se placer dans le répertoire du projet) : 
 
+    cd /path /projetnba / projet-python
     python -m pip install -r requirements.txt 
+
 ### Utilisation
 Pour lancer l’application sur Windows taper l’instruction suivante depuis le terminal : 
 
