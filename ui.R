@@ -116,8 +116,8 @@ ui <- fluidPage( theme =shinytheme("united"),
                                sidebarPanel = (
                                  checkboxGroupInput( inputId = "shoot_leb",
                                                      label = "Shot type",
-                                                     choices = list("3 Points" = "3PT Field Goal","2 Points" = "2PT Field Goal"),
-                                                     selected = "3PT Field Goal" )
+                                                     choices = list("3PT Field Goal(Above 24 ft)" = "3PT Field Goal(Above 24 ft)","2PT Field Goal(in Mid-Range )"= "2PT Field Goal(in Mid-Range )"),
+                                                     selected = "3PT Field Goal(Above 24 ft)" )
                                ),
                                
                                mainPanel( 
@@ -126,12 +126,12 @@ ui <- fluidPage( theme =shinytheme("united"),
                               ) # sidebarL
                       ),#tab panel
                       
-################################################################################################################                      
+##################################################################################################################                      
                       
                       tabPanel("Geolocalisation of shots", 
                                
                                
-                               titlePanel("Lebron James geolocalised Field Goals over the years"),
+                               titlePanel("Lebron James geolocalised Field Goals over the seasons"),
                                
                                
                                sidebarLayout( 
@@ -158,3 +158,4 @@ ui <- fluidPage( theme =shinytheme("united"),
                       
               
 )) # fluid page
+    
