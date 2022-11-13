@@ -3,6 +3,7 @@ import numpy as np
 import time
 import plotly.express as px
 from dash import Dash, html, dcc, Input, Output
+from dash.exceptions import PreventUpdate
 
 start = time.time()
 
@@ -123,7 +124,7 @@ def clean_data_csv(df):
 def convert_data_csv(df):
     """
     Convertie toutes les colonnes dans les bon dtypes 
-    + création de colonnes associées au pts par type de shot
+    + création de colonnes associées au points par type de shot
 
     Args :
         df : dataframe brut/extraite
@@ -190,10 +191,10 @@ def trace_terrain(fig3):
     permet également de mettre en forme la figure
 
     Args : 
-        fig3 : figure utilisée pour la géolocalisation
+        fig3 : figure utilisée pour la géolocalisation.
 
     Returns :
-        fig3 : retourne la figure avec le terrain de basket tracé
+        fig3 : retourne la figure avec le terrain de basket tracé.
     """
     # set l'intervalle de l'axe y pour avoir la moitié du terrain qui nous intéresse
     fig3.update_yaxes(range=[-60,430])
@@ -251,7 +252,7 @@ def data_inter(dico):
 
     Args : 
         dico : dictionnaire qui est retourné par query et dont les clés sont des années et les valeurs
-        sont les données, sous forme de dataframe, correspondantes à la saison
+        sont les données, sous forme de dataframe, correspondantes à la saison.
 
     Returns :
         dfinter : la dataframe adaptée pour la figure 4 avec pour colonnes :
@@ -261,23 +262,45 @@ def data_inter(dico):
     l3pt = []
     lyear = []
     for year, dataf in dico.items():
-        value_count = dataf['SHOT_TYPE'].value_counts()
-        l2pt = np.append(l2pt,value_count[0]).astype(int)
+        value_count = dataf['SHOT_ZONE_RANGE'].value_counts(sort=False)
+        value_count2 = dataf['SHOT_ZONE_BASIC'].value_counts(sort=False)
+        l2pt = np.append(l2pt,value_count2[3]).astype(int)
         l3pt = np.append(l3pt,value_count[1]).astype(int)
         lyear = np.append(lyear,year).astype(int)
 
     s2pt = pd.Series(l2pt)
     s3pt = pd.Series(l3pt)
     syear = pd.Series(lyear)
-    dfinter = pd.concat([syear,s2pt,s3pt],keys=['Year', '2PT Field Goal','3PT Field Goal'],axis=1)
+    dfinter = pd.concat([syear,s2pt,s3pt],keys=['Year', 'Mid-Range','3PT Field Goal(Above 24ft.)'],axis=1)
+    dfinter = dfinter.drop([7,8,9,10])
 
     return dfinter
 
 url = 'https://www.basketball-reference.com/leagues/NBA_2018_totals.html'
+url2 = 'https://www.basketball-reference.com/leagues/NBA_2013_totals.html'
+url3 = 'https://www.basketball-reference.com/leagues/NBA_2004_totals.html'
 
 df_url = url_scraper(url)
 df_url = clean_data_html(df_url)
 df_url = convert_data_html(df_url)
+
+# df_url2 = url_scraper(url2)
+# df_url2 = clean_data_html(df_url2)
+# df_url2 = convert_data_html(df_url2)
+
+# dfsorted2 = top_ten(df_url2,'PTS')
+# # fig6 = histo(dfsorted2,'Player','PTS','Points en fonction des top 10 joueurs')
+# # fig8 = histo(df_url2,'Pos','FG','Paniers marqués en fonction de la position')
+# # fig8.show()
+
+# df_url3 = url_scraper(url3)
+# df_url3 = clean_data_html(df_url3)
+# df_url3 = convert_data_html(df_url3)
+
+# dfsorted3 = top_ten(df_url3,'PTS')
+# # fig7 = histo(dfsorted3,'Player','PTS','Points en fonction des top 10 joueurs')
+# # fig9 = histo(df_url3,'Pos','FG','Paniers marqués en fonction de la position')
+# # fig9.show()
 
 dfsorted = top_ten(df_url,'PTS')
 fig = histo(dfsorted,'Player','PTS','Points en fonction des top 10 joueurs')
@@ -289,13 +312,38 @@ df_csv = convert_data_csv(df_csv)
 
 dicolebron={}
 dicolebron = prep_query(dicolebron,df_csv)
-
-fig3 = px.scatter(dicolebron[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_BASIC',title='Terrain de basket avec la géolocalisation de chaque panier marqués')
+color_list = px.colors.qualitative.Plotly
+zone_basic_color = {
+    'Mid-Range': color_list[0], 'In The Paint (Non-RA)': color_list[1],
+    'Restricted Area': color_list[2], 'Left Corner 3': color_list[3],
+    'Above the Break 3': color_list[4],'Right Corner 3' :color_list[5] 
+} 
+zone_area_color = {
+    'Right Side(R)': color_list[0], 'Left Side(L)': color_list[1],
+    'Center(C)': color_list[2], 'Right Side Center(RC)': color_list[3],
+    'Left Side Center(LC)': color_list[4]
+}
+zone_range_color = {
+    '8-16 ft.': color_list[0], '16-24 ft.': color_list[1],
+    'Less Than 8 ft.': color_list[2], '24+ ft.': color_list[3],
+}
+fig3 = px.scatter(
+    dicolebron[2003],
+    x='LOC_X',
+    y='LOC_Y',
+    color='SHOT_ZONE_BASIC',
+    color_discrete_map = zone_basic_color,
+    title='Terrain de basket avec la géolocalisation de chaque panier marqué'
+)
 fig3 = trace_terrain(fig3)
 
 dfinter = data_inter(dicolebron)
 
-fig4 = px.line(dfinter,x='Year',y='2PT Field Goal',title='Evolution des shots en fonction des années')
+fig4 = px.line(dfinter,x='Year',y='Mid-Range',title='Evolution des zones de tirs en fonction des années')
+
+fig5 = px.histogram(df_url,'Age','3P%',histfunc='avg')
+# fig5.show()
+
 
 app = Dash(__name__)
 app.layout = html.Div(children=[
@@ -336,6 +384,18 @@ app.layout = html.Div(children=[
         figure=fig2
     ),
 
+    html.Label('Type de représentation : ',style={'font-family':'Arial'}),
+
+    dcc.RadioItems(
+        options=[
+            {'label': 'Range', 'value': 'SHOT_ZONE_RANGE'},
+            {'label': 'Basic', 'value': 'SHOT_ZONE_BASIC'},
+            {'label': 'Area', 'value': 'SHOT_ZONE_AREA'},
+        ],
+        id = 'radio-item',
+        value='SHOT_ZONE_BASIC',
+    ),
+
     html.Label('Saison : ',style={'font-family':'Arial'}),
 
     # my input 
@@ -369,14 +429,29 @@ app.layout = html.Div(children=[
     dcc.Checklist(
         id='point-checklist3',
         options=[
-            {'label':'3PTS', 'value':'3PT Field Goal'},
-            {'label':'2PTS', 'value':'2PT Field Goal'},
+            {'label':'3PTS', 'value':'3PT Field Goal(Above 24ft.)'},
+            {'label':'Mid-Range', 'value':'Mid-Range'},
         ],
     ),
 
     dcc.Graph(
         id='graph4',
         figure=fig4
+    ),
+
+    dcc.Checklist(
+        id='point-checklist4',
+        options=[
+            {'label':'FG% (Field Goals%)', 'value':'FG%'},
+            {'label':'3P%', 'value':'3P%'},
+            {'label':'2P%', 'value':'2P%'},
+            {'label':'3PA (3-Points Field Attempted)', 'value':'3PA'},
+            {'label':'2PA (2-Points Field Attempted)', 'value':'2PA'},            
+        ],
+    ),
+    dcc.Graph(
+        id='graph5',
+        figure=fig5
     ),
 
     html.Div(children='''
@@ -390,12 +465,16 @@ app.layout = html.Div(children=[
     Output(component_id='graph2', component_property='figure'),
     Output(component_id='graph3', component_property='figure'),
     Output(component_id='graph4', component_property='figure'),
+    Output(component_id='graph5', component_property='figure'),
     Input(component_id='point-checklist', component_property='value'),
     Input(component_id='point-checklist2', component_property='value'),
     Input(component_id='years-slider', component_property='value'),
+    Input(component_id='radio-item', component_property='value'),
     Input(component_id='point-checklist3', component_property='value'),
+    Input(component_id='point-checklist4', component_property='value'),
 )
-def update_figure(input_value,input_value2,input_value3,input_value4):
+
+def update_figure(input_value,input_value2,input_value3,input_value4,input_value5,input_value6):
     fig = px.histogram(
         dfsorted, 
         x='Player',
@@ -414,18 +493,28 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         dicolebron[input_value3],
         x='LOC_X',
         y='LOC_Y',
-        color='SHOT_ZONE_BASIC',
-        title='Terrain de basket avec la géolocalisation de chaque panier marqués',
+        color= input_value4,
+        title='Terrain de basket avec la géolocalisation de chaque panier marqué',
     )
     trace_terrain(fig3),
 
     fig4 = px.line(
         dfinter,
         x = 'Year',
-        y = input_value4,
+        y = input_value5,
         title='Evolution des type de shots en fonction des années',
     )
-    return fig,fig2,fig3,fig4
+    fig5 = px.histogram(
+        df_url, 
+        x='Age',
+        y= input_value6,
+        histfunc='avg',
+        title= "Paniers marqués en fonction de l'âge"
+    )
+    # if input_value3 == 2010:
+    #     raise PreventUpdate
+    # else:
+    return fig,fig2,fig3,fig4,fig5
 
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
