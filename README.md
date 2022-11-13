@@ -1,6 +1,7 @@
 # Projet NBA 
 
 Ce projet python permet de visualiser des statistiques sur la saison 2017-2018 de NBA, ainsi que sur la carrière de Lebron James entre 2003 et 2017.
+
 ## Présentation du sujet
 
 Pour cela nous avons utilisé 2 sets de données : un set pour la saison 2017-2018 et un autre pour la géolocalisation des tirs de Lebron James entre 2003 et 2017. Notons que pour le dataset de Lebron James ne sont pas renseigné les saisons 2010-2011 à 2013-2014.
@@ -26,19 +27,15 @@ Pour installer l’application effectuer l’instruction suivante :
 
     $ git clone https://git.esiee.fr/amouzoue/projetnba 
 
-
-
 ### Utilisation
 Pour lancer l’application sur Windows taper l’instruction suivante depuis le terminal : 
 
     $ cd /path /projetnba 
-
     $ python main.py 
 
 Pour lancer l’application sur Linux/MacOS taper l’instruction suivante depuis le terminal : 
 
     $ cd /path /projetnba 
-
     $ python3 main.py 
 
 L’application Dashboard tourne sur n'importe quel navigateur à l’adresse suivante : http://127.0.0.1:8050/
@@ -90,18 +87,25 @@ Dans la fonction `add_shape()`, le paramètre path n'accepte pas les arcs de cer
 
 ### Présentaion
 
-Ce projet à pour but de visualiser des données sur les types de tirs effectués lors de la saison 2017-2016. Il à également pour but d'observer l'évolution du jeu en NBA sur les 10 dernières années à travers les données d'un des meilleurs joueurs de l'histoire de la NBA : Lebron James.
- 
+Ce projet à pour but de visualiser des données sur les types de tirs effectués lors de la saison 2017-2016. Il à également pour but d'observer l'évolution du jeu en NBA sur les 10 dernières années à travers les données d'un des meilleurs joueur de l'histoire de la NBA : Lebron James.
+
 ### La saison 2017-2018
 
+![Positions des joueurs sur un terrain de basket](/assets/images/positions_basket.jpg)
 
+Sur le premier graphique nous découvrons que les 10 meilleurs joueurs marquent en général beaucoup plus de paniers à 2 points que de paniers 3 points. Seul James Harden à un nombre de 3 points plus élevé que les 2 points. La proportion de lancer francs est très petite ce qui est normale puisque ces tirs sont accordés après une faute, et non marqués dans le jeu.
 
+Sur le 2e graphique nous voyons que le type de points marqués dépend de la position des joueurs. Ainsi nous observons que les paniers à 3 points sont marqués en majorité par les Shooting Guard (SG) et les Point Guard(PG). Ce qui est logique puisqu'ils sont placés au bord de la ligne des 3 points. Pour les paniers à 2 points ils sont inscrits en majorité par les Center (C) qui sont placés au abord du panier. Les lancers francs ne sont pas influencés par la postion et dépendent uniquement de l'adresse du joueurs qui les tire.
+
+Sur le 3e graphique nous voyons que l'efficicaté des tirs ne change pas malgré l'âge contre ce que l'on auraot pu penser, tout comme le nombre de paniers tentés. Nous remarquons cependant une anomalie pour les joueurs de 39 ans. Cela est expliqué par le fait qu'il n'y en a qu'un seul donc la moyenne est faussée.
 
 ### Carrière de Lebron James
 
+La principal évolution à lieu sur le fait que la zone Mid-Range est délaissée au fil des années. Lebron James marque de plus en plus derrière la ligne des 3 points malgré sa position de Power Forward ou Small Forward qui est proche du panier. Bien sur il garde quand même une concentration importante de tirs dans les zones proches du panier. Cela est confirmé par le graphique en dessous avec le nombre de 3 point qui fini par dépasser le nombre de tirs dans la Mid-Range.
 
 ### Conclusion 
 
+Nous voyons que la manière de jouer à évoluer au cours des années en NBA. Le rôle de chacun malgré des positions similaires a changer entre 2003 et 2018.
 
 ## Auteurs 
 

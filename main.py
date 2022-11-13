@@ -277,30 +277,10 @@ def data_inter(dico):
     return dfinter
 
 url = 'https://www.basketball-reference.com/leagues/NBA_2018_totals.html'
-url2 = 'https://www.basketball-reference.com/leagues/NBA_2013_totals.html'
-url3 = 'https://www.basketball-reference.com/leagues/NBA_2004_totals.html'
 
 df_url = url_scraper(url)
 df_url = clean_data_html(df_url)
 df_url = convert_data_html(df_url)
-
-# df_url2 = url_scraper(url2)
-# df_url2 = clean_data_html(df_url2)
-# df_url2 = convert_data_html(df_url2)
-
-# dfsorted2 = top_ten(df_url2,'PTS')
-# # fig6 = histo(dfsorted2,'Player','PTS','Points en fonction des top 10 joueurs')
-# # fig8 = histo(df_url2,'Pos','FG','Paniers marqués en fonction de la position')
-# # fig8.show()
-
-# df_url3 = url_scraper(url3)
-# df_url3 = clean_data_html(df_url3)
-# df_url3 = convert_data_html(df_url3)
-
-# dfsorted3 = top_ten(df_url3,'PTS')
-# # fig7 = histo(dfsorted3,'Player','PTS','Points en fonction des top 10 joueurs')
-# # fig9 = histo(df_url3,'Pos','FG','Paniers marqués en fonction de la position')
-# # fig9.show()
 
 dfsorted = top_ten(df_url,'PTS')
 fig = histo(dfsorted,'Player','PTS','Points en fonction des top 10 joueurs')
@@ -485,7 +465,6 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         histfunc='sum',
         title='Points en fonction des 10 meilleurs joueurs'
     )
-    fig.update_yaxes(title=input_value)
 
     fig2 = px.histogram(
         df_url, 
@@ -494,7 +473,6 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         histfunc='sum',
         title='Paniers marqués en fonction de la position'
     ) 
-    fig2.update_yaxes(title=input_value2)
 
     fig4 = px.line(
         dfinter,
@@ -502,7 +480,6 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         y = input_value3,
         title='Evolution des type de shots en fonction des années',
     )
-    fig4.update_yaxes(title=input_value3)
 
     fig5 = px.histogram(
         df_url, 
@@ -511,7 +488,6 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         histfunc='avg',
         title= "Paniers marqués en fonction de l'âge"
     )
-    fig5.update_yaxes(title='{input_value4}')
 
     return fig,fig2,fig4,fig5
 
@@ -535,7 +511,6 @@ def update_map(input_value,input_value2):
 
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
-
 
 end = time.time() 
 
