@@ -25,26 +25,32 @@ Ci-dessous les instructions et les précautions nécessaires pour faire tourner 
 Vous devez d’abord vous assurer d’avoir la dernière version de Python installée sur votre machine. 
 Si ce n’est pas le cas vous pouvez suivre les instructions d'installation [ici](https://www.python.org/downloads/).
 
-Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
-
-    $ python -m pip install -r requirements.txt 
-
 ### Installation 
 
 Pour installer l’application effectuer l’instruction suivante : 
 
-    $ git clone https://git.esiee.fr/amouzoue/projetnba 
+    git clone https://git.esiee.fr/amouzoue/projetnba 
+
+Placez vous d'abord dans le repertoire approprié avec la commande suivante : 
+
+    cd /path /projetnba / projet-python
+
+Pour éviter tout bug d'abord effectuer la commande suivante : 
+
+    pip list --format=freeze > requirements.txt 
+
+Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
+   
+    python -m pip install -r requirements.txt 
 
 ### Utilisation
 Pour lancer l’application sur Windows taper l’instruction suivante depuis le terminal : 
 
-    $ cd /path /projetnba 
-    $ python main.py 
+    python main.py 
 
 Pour lancer l’application sur Linux/MacOS taper l’instruction suivante depuis le terminal : 
 
-    $ cd /path /projetnba 
-    $ python3 main.py 
+    python3 main.py 
 
 L’application Dashboard tourne sur n'importe quel navigateur à l’adresse suivante : http://127.0.0.1:8050/
 
@@ -70,6 +76,12 @@ L'utilisateur peut cocher les différentes cases et filtres à disposition. Il p
 requirement.txt contient les instructions pour installer les librairies nécessaires.
 
 csv_geoloc.csv contient les données pour les saisons 2003 à 2017 de Lebron James.
+
+functions.py contient les fonctions essentiellement utilisées pour le nettoyage de la dataframe.
+
+main.py contient tout le code permettant d'éxecuter et lancer l'app.
+
+Le répertoire assets contient l'image positions_basket.jpg utilisée dans le README.md de ce projet. 
 
 ### Copyright
 
@@ -115,7 +127,7 @@ Ce projet à pour but de visualiser des données sur les types de tirs effectué
 
 ### La saison 2017-2018
 
-![Positions des joueurs sur un terrain de basket](/assets/positions_basket.jpg)
+![Positions des joueurs sur un terrain de basket](projet-python/assets/positions_basket.jpg)
 
 Sur le premier graphique nous découvrons que les 10 meilleurs joueurs marquent en général beaucoup plus de paniers à 2 points que de paniers 3 points. Seul James Harden à un nombre de 3 points plus élevé que les 2 points. La proportion de lancer francs est très petite ce qui est normale puisque ces tirs sont accordés après une faute, et non marqués dans le jeu.
 

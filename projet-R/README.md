@@ -28,6 +28,7 @@ Assurez-vous d'installer les librairies suivantes par les commander:
     >install.packages(shinythemes)
     >install.packages(grid)
     >install.packages("devtools")
+    >library(rsconnect)
 
 
 ### Installation 
@@ -68,7 +69,7 @@ ui.R contient les informations de l'interface utilisateur definissant l'aspect g
 
 server.R contient le lignes de code pour la préparations des données et la construction des output correspondant aux interactions détectées sur l'ui.
 
-positions_basket.jpg est l'image qui vous permmettra réconnaitre le zones d'un terrain de basket.
+positions_basket.jpg est l'image qui vous permmettra de réconnaitre le zones du terrain de basket.
 
 ### Copyright
 
@@ -88,7 +89,7 @@ Ce projet à pour but de visualiser des données sur les types de tirs effectué
 
 ### La saison 2017-2018
 
-![Positions des joueurs sur un terrain de basket](/assets/positions_basket.jpg)
+![Positions des joueurs sur un terrain de basket](projet-R/assets/positions_basket.jpg)
 
 Premier onglet de l'application:
 
