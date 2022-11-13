@@ -53,6 +53,7 @@ L'utilisateur peut cocher les différentes cases et filtres à disposition. Il p
         
     |-- requirements.txt 
     |-- csv_geoloc.csv 
+    |-- functions.py
     |-- main.py 
     |-- README.md 
 
@@ -67,7 +68,22 @@ csv_geoloc.csv contient les données pour les saisons 2003 à 2017 de Lebron Jam
 Je déclare sur l’honneur que le code fourni a été produit par moi/nous même, à l’exception des lignes ci dessous.
 
     def ellipse_arc(x_center=0, y_center=0, a=1, b =1, start_angle=0, end_angle=2*np.pi, N=100, closed= False):
+    """
+        Permet de faire des arcs de cercle équivalents à ceux proposés en SVG 
 
+        Args : 
+            x_center : la coordonée x du centre de l'arc de cercle \n
+            y_center : la coordonée y du centre de l'arc de cercle \n
+            a : point du début de l'arc de cercle \n
+            b : point de fin de l'arc de cerlce \n
+            start_angle : angle du début de l'arc de cercle \n
+            end_angle : angle de la fin de l'arc de cercle \n
+            N = nombre d'échantillons pour linspace \n
+            closed : fermer ou non l'arc de cercle (bool) 
+
+        Returns: 
+            path : le chemin correspondant au l'arc de cercle en SVG (Scalable Vector Graphics)
+            
         t = np.linspace(start_angle, end_angle, N)
         x = x_center + a*np.cos(t)
         y = y_center + b*np.sin(t)
