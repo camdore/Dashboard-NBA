@@ -62,7 +62,7 @@ server <- function(input, output) {
         colnames(Lebronjames_shots_md_tot ) <- c("Type_of_shot","Year","Points")
         year <- unique(Lebronjames_shots_ab_tot[,c("Year")])
         bl <- 1:13
-        Lebron <- data.frame(year,PT_Field_Goal3,PT_Field_Goal2,bl)
+        Lebron <- data.frame(year,Lebronjames_shots_ab_tot$Points ,Lebronjames_shots_md_tot$Points,bl)
         colnames(Lebron) <- c("Year","3PT Field Goal(Above 24 ft)","2PT Field Goal(in Mid-Range )","NA")  # New dataframe
 
     
