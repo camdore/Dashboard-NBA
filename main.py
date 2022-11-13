@@ -1,80 +1,13 @@
 import pandas as pd
 import numpy as np
-import time
 import plotly.express as px
+import dash
 from dash import Dash, html, dcc, Input, Output
-from dash.exceptions import PreventUpdate
+from functions import clean_data_html
+from functions import convert_data_html
+from functions import clean_data_csv
+from functions import convert_data_csv
 
-start = time.time()
-
-def url_scraper(url):
-    """
-    Extrait les données de l'url donnée
-
-    Args : 
-        url : adresse du site à étudier
-
-    Returns :
-        df : la dataframe extraite
-    """
-    df = pd.read_html(url,flavor='lxml')[0]
-    return df
-
-def clean_data_html(df):
-    """
-    Nettoie la dataframe extraite à partir de l'url en enlevant toutes 
-    les colonnes inutiles, les doublons
-
-    Args :
-        df : dataframe brut/extraite
-
-    Returns :
-        df : dataframe nettoyée
-    """
-    asup = df[df['Rk']=='Rk']
-    df.drop(asup.index, axis=0,inplace=True)
-
-    # on supprime les colonnes de rebonds ect...
-    df.drop(df.columns[[0,6,21,22,23,24,25,26,27,28]],axis=1,inplace=True)
-
-    # on supprime les doublons pour les joueues ayant changer d'équipe durant la saison
-    df = df.drop_duplicates(subset=['Player'])
-
-    return df
-
-def convert_data_html(df):
-    """
-    Convertie toutes les colonnes dans les bon dtypes 
-    + création de colonnes associées au pts par type de shot
-
-    Args :
-        df : dataframe brut/extraite
-
-    Returns :
-        df : dataframe nettoyée
-    """
-    # on crée des subsets pour les conversions
-    varfloat = df[['FG%','3P%','2P%','eFG%','FT%']]
-    varint = df[['Age','G','MP','FG','FGA','3P','3PA','2P','2PA','PTS','FT','FTA']]  
-    # conversion avec les bon dtypes
-    for col in varfloat.columns:
-        if col in varfloat :
-            df[col]=df[col].astype('float')
-    for col in varint.columns:
-        if col in varint :
-            df[col]=df[col].astype('int')
-
-    df['Player']=df['Player'].astype('string')
-    df['Tm']=df['Tm'].astype('string')
-    df['Pos']=df['Pos'].astype('category')
-
-    # création de colonnes associées au pts par type de shot 
-    # par ex : nb de pts pour les tir à 3pts = 3P * 3
-    # et les Free Throws valent chacun 1pts
-    df['3PTS']=df['3P']*3
-    df['2PTS']=df['2P']*2
-
-    return df
 
 def top_ten(df,cat):
     """
@@ -90,62 +23,6 @@ def top_ten(df,cat):
     dfsorted = df.sort_values(by=[cat],ascending=False).head(10)
 
     return dfsorted
-
-def histo (df,xaxis,yaxis,titre):
-    """
-    Créé un histogramme en fonction des différents paramètres
-
-    Args :
-        df : la dataframe utilisée \n
-        x : axe des abscisses en str \n
-        y : axe des ordonnées en str \n
-        title : titre du graphique en srt
-
-    Returns :
-        fig : le graphique correspondant
-    """
-    fig = px.histogram(df, x=xaxis,y=yaxis,histfunc='sum',title=titre)
-
-    return fig
-
-def clean_data_csv(df):
-    """
-    Nettoie la 2e dataframe extraite du csv en enlevant toutes les colonnes inutiles
-
-    Args :
-        df : la dataframe extraite du csv
-    
-    Returns : 
-        df : la dataframe nettoyée
-    """
-    df.drop(df.columns[[0,1,2,3,5,6,7,8,9,10,19,20,22,23]],axis=1,inplace=True)
-    return df
-
-def convert_data_csv(df):
-    """
-    Convertie toutes les colonnes dans les bon dtypes 
-    + création de colonnes associées au points par type de shot
-
-    Args :
-        df : dataframe brut/extraite
-
-    Returns :
-        df : dataframe nettoyée
-    """
-    # création de subset pour les convertions
-    varcat = df[['SHOT_TYPE','SHOT_ZONE_BASIC','SHOT_ZONE_AREA','SHOT_ZONE_RANGE','ACTION_TYPE']]
-    
-    # conversion avec les bons dtypes
-    for col in varcat.columns:
-        if col in varcat :
-            df[col]=df[col].astype('category')
-
-    df['PLAYER_NAME']=df['PLAYER_NAME'].astype('string')
-
-    df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'], format='%Y%m%d')
-
-    return(df)
-
 
 def prep_query(dico,df):
     """
@@ -169,10 +46,20 @@ def prep_query(dico,df):
 
 def ellipse_arc(x_center=0, y_center=0, a=1, b =1, start_angle=0, end_angle=2*np.pi, N=100, closed= False):
     """
-    la fonction ellipse_arc vient du site suivant : 
-    https://community.plotly.com/t/arc-shape-with-path/7205/5
-    parce que  dans la fonction add_shape() le paramètre path
-    n'accepte pas les arcs de cercle (A) (doc officielle) 
+    Permet de faire des arcs de cercle équivalents à ceux proposés en SVG 
+
+    Args : 
+        x_center : la coordonée x du centre de l'arc de cercle \n
+        y_center : la coordonée y du centre de l'arc de cercle \n
+        a : point du début de l'arc de cercle \n
+        b : point de fin de l'arc de cerlce \n
+        start_angle : angle du début de l'arc de cercle \n
+        end_angle : angle de la fin de l'arc de cercle \n
+        N = nombre d'échantillons pour linspace \n
+        closed : fermer ou non l'arc de cercle (bool) 
+
+    Returns: 
+        path : le chemin correspondant au l'arc de cercle en SVG (Scalable Vector Graphics)
     """
     t = np.linspace(start_angle, end_angle, N)
     x = x_center + a*np.cos(t)
@@ -187,7 +74,7 @@ def ellipse_arc(x_center=0, y_center=0, a=1, b =1, start_angle=0, end_angle=2*np
 
 def trace_terrain(fig3):
     """
-    trace toutes les lignes du terrain de basket sur la figure,
+    Trace toutes les lignes du terrain de basket sur la figure,
     permet également de mettre en forme la figure
 
     Args : 
@@ -196,7 +83,7 @@ def trace_terrain(fig3):
     Returns :
         fig3 : retourne la figure avec le terrain de basket tracé.
     """
-    # set l'intervalle de l'axe y pour avoir la moitié du terrain qui nous intéresse
+    # configure l'intervalle de l'axe y pour avoir la moitié du terrain qui nous intéresse
     fig3.update_yaxes(range=[-60,430])
 
     # pour garder les proportions du terrain
@@ -277,37 +164,28 @@ def data_inter(dico):
     return dfinter
 
 url = 'https://www.basketball-reference.com/leagues/NBA_2018_totals.html'
-url2 = 'https://www.basketball-reference.com/leagues/NBA_2013_totals.html'
-url3 = 'https://www.basketball-reference.com/leagues/NBA_2004_totals.html'
 
-df_url = url_scraper(url)
+df_url = pd.read_html(url,flavor='lxml')[0]
 df_url = clean_data_html(df_url)
 df_url = convert_data_html(df_url)
 
-# df_url2 = url_scraper(url2)
-# df_url2 = clean_data_html(df_url2)
-# df_url2 = convert_data_html(df_url2)
-
-# dfsorted2 = top_ten(df_url2,'PTS')
-# # fig6 = histo(dfsorted2,'Player','PTS','Points en fonction des top 10 joueurs')
-# # fig8 = histo(df_url2,'Pos','FG','Paniers marqués en fonction de la position')
-# # fig8.show()
-
-# df_url3 = url_scraper(url3)
-# df_url3 = clean_data_html(df_url3)
-# df_url3 = convert_data_html(df_url3)
-
-# dfsorted3 = top_ten(df_url3,'PTS')
-# # fig7 = histo(dfsorted3,'Player','PTS','Points en fonction des top 10 joueurs')
-# # fig9 = histo(df_url3,'Pos','FG','Paniers marqués en fonction de la position')
-# # fig9.show()
-
 dfsorted = top_ten(df_url,'PTS')
-fig = histo(dfsorted,'Player','PTS','Points en fonction des top 10 joueurs')
+fig = px.histogram(
+    dfsorted,
+    x='Player',
+    y='PTS',
+    histfunc='sum',
+    title='Points en fonction des top 10 joueurs'
+)
 fig.update_xaxes(title_text='Time')
 fig.update_yaxes(title_text='Points')
 
-fig2 = histo(df_url,'Pos','FG','Points marqués en fonction de la position')
+fig2 = px.histogram(df_url,
+    x='Pos',
+    y='FG',
+    histfunc='sum',
+    title='Points marqués en fonction de la position'
+)
 fig2.update_xaxes(title_text='Position')
 fig2.update_yaxes(title_text='Points')
 
@@ -318,43 +196,40 @@ df_csv = convert_data_csv(df_csv)
 dicolebron={}
 dicolebron = prep_query(dicolebron,df_csv)
 
-color_list = px.colors.qualitative.Plotly
-zone_basic_color = {
-    'Mid-Range': color_list[0], 'In The Paint (Non-RA)': color_list[1],
-    'Restricted Area': color_list[2], 'Left Corner 3': color_list[3],
-    'Above the Break 3': color_list[4],'Right Corner 3' :color_list[5] 
-} 
-zone_area_color = {
-    'Right Side(R)': color_list[0], 'Left Side(L)': color_list[1],
-    'Center(C)': color_list[2], 'Right Side Center(RC)': color_list[3],
-    'Left Side Center(LC)': color_list[4]
-}
-zone_range_color = {
-    '8-16 ft.': color_list[0], '16-24 ft.': color_list[1],
-    'Less Than 8 ft.': color_list[2], '24+ ft.': color_list[3],
-}
 fig3 = px.scatter(
     dicolebron[2003],
     x='LOC_X',
     y='LOC_Y',
     color='SHOT_ZONE_BASIC',
-    color_discrete_map = zone_basic_color,
     title='Terrain de basket avec la géolocalisation de chaque panier marqué'
 )
 fig3 = trace_terrain(fig3)
 
 dfinter = data_inter(dicolebron)
 
-fig4 = px.line(dfinter,x='Year',y='Mid-Range',title='Evolution des zones de tirs en fonction des années')
+fig4 = px.line(
+    dfinter,
+    x='Year',
+    y='Mid-Range',
+    title='Evolution des zones de tirs en fonction des années'
+)
+fig5 = px.histogram(
+    df_url,
+    x='Age',y='3P%',
+    histfunc='avg',
+    title= "Paniers marqués en fonction de l'âge"
+)
 
-fig5 = px.histogram(df_url,'Age','3P%',histfunc='avg')
-fig.update_yaxes(title_text="% de 3 Points")
 
+###################################### Dash App ######################################
 
 app = Dash(__name__)
+
 app.layout = html.Div(children=[
 
     html.H1(children='NBA Dashboard', style={'text-align':'center','font-family':'Arial'}),
+
+    html.H2('Statistiques sur la saison 2017-2018 :',style={'font-family':'Arial'}),
 
     html.Label('Type de paniers : ',style={'font-family':'Arial'}),
 
@@ -389,6 +264,23 @@ app.layout = html.Div(children=[
         id='graph2',
         figure=fig2
     ),
+
+    dcc.Checklist(
+        id='point-checklist4',
+        options=[
+            {'label':'FG% (Field Goals%)', 'value':'FG%'},
+            {'label':'3P%', 'value':'3P%'},
+            {'label':'2P%', 'value':'2P%'},
+            {'label':'3PA (3-Points Field Attempted)', 'value':'3PA'},
+            {'label':'2PA (2-Points Field Attempted)', 'value':'2PA'},            
+        ],
+    ),
+    dcc.Graph(
+        id='graph5',
+        figure=fig5
+    ),
+
+    html.H2('Statistique sur Lebron James entre 2003 et 2018',style={'font-family':'Arial'}),
 
     html.Label('Type de représentation : ',style={'font-family':'Arial'}),
 
@@ -445,23 +337,8 @@ app.layout = html.Div(children=[
         figure=fig4
     ),
 
-    dcc.Checklist(
-        id='point-checklist4',
-        options=[
-            {'label':'FG% (Field Goals%)', 'value':'FG%'},
-            {'label':'3P%', 'value':'3P%'},
-            {'label':'2P%', 'value':'2P%'},
-            {'label':'3PA (3-Points Field Attempted)', 'value':'3PA'},
-            {'label':'2PA (2-Points Field Attempted)', 'value':'2PA'},            
-        ],
-    ),
-    dcc.Graph(
-        id='graph5',
-        figure=fig5
-    ),
-
     html.Div(children='''
-            Description of the graph above. Mouse over for details
+            Dashboard crée par Camille Doré et Thomas Ekué pour l’unité DSIA-4101C
     ''',
     style={'font-family':'Arial'}),
 ])
@@ -485,25 +362,19 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         histfunc='sum',
         title='Points en fonction des 10 meilleurs joueurs'
     )
-    fig.update_yaxes(title=input_value)
-
     fig2 = px.histogram(
         df_url, 
         x='Pos',
         y= input_value2,
         histfunc='sum',
         title='Paniers marqués en fonction de la position'
-    ) 
-    fig2.update_yaxes(title=input_value2)
-
+    )
     fig4 = px.line(
         dfinter,
         x = 'Year',
         y = input_value3,
         title='Evolution des type de shots en fonction des années',
     )
-    fig4.update_yaxes(title=input_value3)
-
     fig5 = px.histogram(
         df_url, 
         x='Age',
@@ -511,8 +382,6 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         histfunc='avg',
         title= "Paniers marqués en fonction de l'âge"
     )
-    fig5.update_yaxes(title='{input_value4}')
-
     return fig,fig2,fig4,fig5
 
 
@@ -520,9 +389,13 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
     Output(component_id='graph3', component_property='figure'),
     Input(component_id='years-slider', component_property='value'),
     Input(component_id='radio-item', component_property='value'),
+    # prevent_initial_call=True
 )  
 
 def update_map(input_value,input_value2):
+    if input_value in [2010,2011,2012,2013]:
+        return dash.no_update
+
     fig3 = px.scatter(
             dicolebron[input_value],
             x='LOC_X',
@@ -535,8 +408,3 @@ def update_map(input_value,input_value2):
 
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
-
-
-end = time.time() 
-
-print('execution time :',(end-start), "s")
