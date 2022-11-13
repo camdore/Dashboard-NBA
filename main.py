@@ -196,11 +196,31 @@ df_csv = convert_data_csv(df_csv)
 dicolebron={}
 dicolebron = prep_query(dicolebron,df_csv)
 
+# création d'un color_dict pour figer les couleurs assignées au catégories
+color_list = px.colors.qualitative.Plotly
+color_dict = {
+    'SHOT_ZONE_BASIC' : {
+    'Mid-Range': color_list[0], 'In The Paint (Non-RA)': color_list[1],
+    'Restricted Area': color_list[2], 'Left Corner 3': color_list[3],
+    'Above the Break 3': color_list[4],'Right Corner 3' :color_list[5] 
+    },
+    'SHOT_ZONE_AREA' : {
+    'Right Side(R)': color_list[0], 'Left Side(L)': color_list[1],
+    'Center(C)': color_list[2], 'Right Side Center(RC)': color_list[3],
+    'Left Side Center(LC)': color_list[4]
+    },
+    'SHOT_ZONE_RANGE' : {
+    '8-16 ft.': color_list[0], '16-24 ft.': color_list[1],
+    'Less Than 8 ft.': color_list[2], '24+ ft.': color_list[3],
+    },
+}
+
 fig3 = px.scatter(
     dicolebron[2003],
     x='LOC_X',
     y='LOC_Y',
     color='SHOT_ZONE_BASIC',
+    color_discrete_map = color_dict['SHOT_ZONE_BASIC'],
     title='Terrain de basket avec la géolocalisation de chaque panier marqué'
 )
 fig3 = trace_terrain(fig3)
@@ -233,7 +253,6 @@ app.layout = html.Div(children=[
 
     html.Label('Type de paniers : ',style={'font-family':'Arial'}),
 
-    # my input 
     dcc.Checklist(
         id='point-checklist',
         options=[
@@ -243,7 +262,6 @@ app.layout = html.Div(children=[
         ],
     ),
 
-    # my output : the Graph figure = fig
     dcc.Graph(
         id='graph1',
         figure=fig
@@ -296,7 +314,6 @@ app.layout = html.Div(children=[
 
     html.Label('Saison : ',style={'font-family':'Arial'}),
 
-    # my input 
     dcc.Slider(2003,2017, 
         step =1,
         marks={
@@ -316,7 +333,6 @@ app.layout = html.Div(children=[
         value=2003
     ),
 
-    # my output : the Graph figure = fig 
     dcc.Graph(
         id='graph3',
         figure=fig3
@@ -389,7 +405,6 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
     Output(component_id='graph3', component_property='figure'),
     Input(component_id='years-slider', component_property='value'),
     Input(component_id='radio-item', component_property='value'),
-    # prevent_initial_call=True
 )  
 
 def update_map(input_value,input_value2):
@@ -401,6 +416,7 @@ def update_map(input_value,input_value2):
             x='LOC_X',
             y='LOC_Y',
             color= input_value2,
+            color_discrete_map= color_dict[input_value2],
             title='Terrain de basket avec la géolocalisation de chaque panier marqué',
         )
     trace_terrain(fig3),
