@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import dash
 from dash import Dash, html, dcc, Input, Output
-from dash.exceptions import PreventUpdate
 from functions import clean_data_html
 from functions import convert_data_html
 from functions import clean_data_csv
@@ -196,27 +196,11 @@ df_csv = convert_data_csv(df_csv)
 dicolebron={}
 dicolebron = prep_query(dicolebron,df_csv)
 
-color_list = px.colors.qualitative.Plotly
-zone_basic_color = {
-    'Mid-Range': color_list[0], 'In The Paint (Non-RA)': color_list[1],
-    'Restricted Area': color_list[2], 'Left Corner 3': color_list[3],
-    'Above the Break 3': color_list[4],'Right Corner 3' :color_list[5] 
-} 
-zone_area_color = {
-    'Right Side(R)': color_list[0], 'Left Side(L)': color_list[1],
-    'Center(C)': color_list[2], 'Right Side Center(RC)': color_list[3],
-    'Left Side Center(LC)': color_list[4]
-}
-zone_range_color = {
-    '8-16 ft.': color_list[0], '16-24 ft.': color_list[1],
-    'Less Than 8 ft.': color_list[2], '24+ ft.': color_list[3],
-}
 fig3 = px.scatter(
     dicolebron[2003],
     x='LOC_X',
     y='LOC_Y',
     color='SHOT_ZONE_BASIC',
-    color_discrete_map = zone_basic_color,
     title='Terrain de basket avec la géolocalisation de chaque panier marqué'
 )
 fig3 = trace_terrain(fig3)
@@ -353,7 +337,6 @@ app.layout = html.Div(children=[
         figure=fig4
     ),
 
-
     html.Div(children='''
             Dashboard crée par Camille Doré et Thomas Ekué pour l’unité DSIA-4101C
     ''',
@@ -406,9 +389,13 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
     Output(component_id='graph3', component_property='figure'),
     Input(component_id='years-slider', component_property='value'),
     Input(component_id='radio-item', component_property='value'),
+    # prevent_initial_call=True
 )  
 
 def update_map(input_value,input_value2):
+    if input_value in [2010,2011,2012,2013]:
+        return dash.no_update
+
     fig3 = px.scatter(
             dicolebron[input_value],
             x='LOC_X',
