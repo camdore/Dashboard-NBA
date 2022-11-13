@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import time
 import plotly.express as px
-import plotly.graph_objects as go
+import dash
 from dash import Dash, html, dcc, Input, Output
 from dash.exceptions import PreventUpdate
 
@@ -36,24 +36,7 @@ for year in range(2003,2018,1):
     end_date = str(year+1) +'-05'
     dicosaison[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
 
-l2pt =[]
-l3pt = []
-lyear = []
-for year, dataf in dicosaison.items():
-    value_count = dataf['SHOT_ZONE_RANGE'].value_counts(sort=False)
-    value_count2 = dataf['SHOT_ZONE_BASIC'].value_counts(sort=False)
-    l2pt = np.append(l2pt,value_count2[3]).astype(int)
-    l3pt = np.append(l3pt,value_count[1]).astype(int)
-    lyear = np.append(lyear,year).astype(int)
-
-s2pt = pd.Series(l2pt)
-s3pt = pd.Series(l3pt)
-syear = pd.Series(lyear)
-dfinter = pd.concat([syear,s2pt,s3pt],keys=['Year', 'Mid-Range','3PT Field Goal(Above 24ft.)'],axis=1)
-dfinter = dfinter.drop([7,8,9,10])
-
 # les graphs
-fig = px.line(dfinter,x='Year',y='Mid-Range',title='Evolution des zones en fonction des années')
 
 color_list = px.colors.qualitative.Plotly
 color_dict = {
@@ -148,31 +131,34 @@ def trace_terrain(fig3):
     return fig3
 
 
-# dashboard
-# visit http://127.0.0.1:8050/ in your web browser.
-# app = dash.Dash() # On crée une instance de la classe Dash
-app = Dash(__name__)
+###################################### Dash App ######################################
 
-all_options = {
-    'Zone': ['SHOT_ZONE_BASIC','SHOT_ZONE_RANGE',  'SHOT_ZONE_AREA'],
-    'Color': [u'zone_basic_color', 'zone_range_color', 'zone_area_color']
-}
+app = Dash(__name__)
 
 app.layout = html.Div(children=[
 
-    html.H1(children='NBA Dashboard geoloc'),
+    html.H1(children='NBA Dashboard', style={'text-align':'center','font-family':'Arial'}),
 
-    # html.Label('Season : '),
+
+    html.H2('Statistique sur Lebron James entre 2003 et 2018',style={'font-family':'Arial'}),
+
+    html.Label('Type de représentation : ',style={'font-family':'Arial'}),
+
     dcc.RadioItems(
-        list(all_options.keys()),
-        'Zone',
-        id='zone-radio',#input1
+        options=[
+            {'label': 'Range', 'value': 'SHOT_ZONE_RANGE'},
+            {'label': 'Basic', 'value': 'SHOT_ZONE_BASIC'},
+            {'label': 'Area', 'value': 'SHOT_ZONE_AREA'},
+        ],
+        id = 'radio-item',
+        value='SHOT_ZONE_BASIC',
     ),
-    dcc.RadioItems(id='color-radio'),#input2 lié à input1
 
-    # # my input 
-     dcc.Slider(2003, 2017, 
-        step=1,
+    html.Label('Saison : ',style={'font-family':'Arial'}),
+
+    # my input 
+    dcc.Slider(2003,2017, 
+        step =1,
         marks={
             2003 : '2003-2004',
             2004 : '2004-2005',
@@ -192,77 +178,45 @@ app.layout = html.Div(children=[
 
     # my output : the Graph figure = fig 
     dcc.Graph(
-        id='graph1',
+        id='graph3',
         figure=fig3
     ),
 
+    html.Label('Type de paniers :',style={'font-family':'Arial'}),
+
     dcc.Checklist(
-        id='point-checklist2',
+        id='point-checklist3',
         options=[
             {'label':'3PTS', 'value':'3PT Field Goal(Above 24ft.)'},
             {'label':'Mid-Range', 'value':'Mid-Range'},
         ],
     ),
 
-    dcc.Graph(
-        id='graph2',
-        figure=fig
-    ),
-
     html.Div(children='''
-            Description of the graph above. Mouse over for details
-    '''),
+            Dashboard crée par Camille Doré et Thomas Ekué pour l’unité DSIA-4101C
+    ''',
+    style={'font-family':'Arial'}),
 ])
-@app.callback(
-    Output('color-radio', 'options'),
-    Input('zone-radio', 'value')
-)
-def set_color_options(selected_zone):
-    return [{'label': i, 'value': i} for i in all_options[selected_zone]]
 
 @app.callback(
-    Output('color-radio', 'value'),
-    Input('color-radio', 'options')
-)
-def set_color_value(available_options):
-    return available_options[0]['value']
+    Output(component_id='graph3', component_property='figure'),
+    Input(component_id='years-slider', component_property='value'),
+    Input(component_id='radio-item', component_property='value'),
+)  
 
-@app.callback(
-    Output('graph1', 'figure'),
-    Input('color-radio', 'value'),
-    Input('zone-radio', 'value'),
-    Input('years-slider', 'value'))
-    
-def update_map(selected_zone,selected_color,input_value):
+def update_map(input_value,input_value2):
+    if input_value in [2010,2011,2012,2013]:
+        return dash.no_update
 
     fig3 = px.scatter(
-        dicosaison[input_value],
-        x='LOC_X',
-        y='LOC_Y',
-        color=selected_zone,
-        color_discrete_map = color_dict[selected_color]
-    )
+            dicosaison[input_value],
+            x='LOC_X',
+            y='LOC_Y',
+            color= input_value2,
+            title='Terrain de basket avec la géolocalisation de chaque panier marqué',
+        )
     trace_terrain(fig3),
-    if input_value == 2004:
-        raise PreventUpdate
-    else:
-        return fig3
-
-@app.callback(
-    Output('graph2', 'figure'),
-    Input('point-checklist2','value'))   
-def update_figure(input_value2):
-    fig = px.line(
-        dfinter,
-        x = 'Year',
-        y = input_value2,
-        title='Evolution des type de shots en fonction des années',
-    )
-    return fig
+    return fig3
 
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
-
-end = time.time() 
-
-print('execution time :',(end-start), "s")

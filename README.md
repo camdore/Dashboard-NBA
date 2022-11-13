@@ -8,6 +8,14 @@ Pour cela nous avons utilisé 2 sets de données : un set pour la saison 2017-20
 
 Une fois l’application lancée vous aurez accès aux données sur les différents types de tirs que ce soient des tirs à 3 points, 2points, lancer franc, leur pourcentage de réussite ou encore leur localisation.
 
+### Sources de nos données
+
+Les données pour de dataset de la saison 2017-2018 sont disponibles sur le site [basketball-reference.com](https://www.basketball-reference.com/leagues/NBA_2018_totals.html).
+
+Pour le dataset sur Lebron James nous avons récupérer le fichier csv grâce à l'api de Swar Patel disponible [ici](https://github.com/swar/nba_api).
+
+Cette api récupère les données sur le site officiel de la NBA. nous extrayons ensuite les données dans un fichier csv avec l'aide de ce [tutoriel](https://datavizardry.com/2020/01/28/nba-shot-charts-part-1/).
+
 ## User Guide 
 
 Ci-dessous les instructions et les précautions nécessaires pour faire tourner l’application dans de bonnes conditions.
