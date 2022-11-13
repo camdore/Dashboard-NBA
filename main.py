@@ -304,7 +304,12 @@ df_url = convert_data_html(df_url)
 
 dfsorted = top_ten(df_url,'PTS')
 fig = histo(dfsorted,'Player','PTS','Points en fonction des top 10 joueurs')
-fig2 = histo(df_url,'Pos','FG','Paniers marqués en fonction de la position')
+fig.update_xaxes(title_text='Time')
+fig.update_yaxes(title_text='Points')
+
+fig2 = histo(df_url,'Pos','FG','Points marqués en fonction de la position')
+fig2.update_xaxes(title_text='Position')
+fig2.update_yaxes(title_text='Points')
 
 df_csv = pd.read_csv('csv_geoloc.csv',delimiter = ';')
 df_csv = clean_data_csv(df_csv)
@@ -312,6 +317,7 @@ df_csv = convert_data_csv(df_csv)
 
 dicolebron={}
 dicolebron = prep_query(dicolebron,df_csv)
+
 color_list = px.colors.qualitative.Plotly
 zone_basic_color = {
     'Mid-Range': color_list[0], 'In The Paint (Non-RA)': color_list[1],
@@ -342,7 +348,7 @@ dfinter = data_inter(dicolebron)
 fig4 = px.line(dfinter,x='Year',y='Mid-Range',title='Evolution des zones de tirs en fonction des années')
 
 fig5 = px.histogram(df_url,'Age','3P%',histfunc='avg')
-# fig5.show()
+fig.update_yaxes(title_text="% de 3 Points")
 
 
 app = Dash(__name__)
@@ -478,7 +484,9 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         y= input_value,
         histfunc='sum',
         title='Points en fonction des 10 meilleurs joueurs'
-    ) 
+    )
+    fig.update_yaxes(title=input_value)
+
     fig2 = px.histogram(
         df_url, 
         x='Pos',
@@ -486,12 +494,16 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         histfunc='sum',
         title='Paniers marqués en fonction de la position'
     ) 
+    fig2.update_yaxes(title=input_value2)
+
     fig4 = px.line(
         dfinter,
         x = 'Year',
         y = input_value3,
         title='Evolution des type de shots en fonction des années',
     )
+    fig4.update_yaxes(title=input_value3)
+
     fig5 = px.histogram(
         df_url, 
         x='Age',
@@ -499,6 +511,7 @@ def update_figure(input_value,input_value2,input_value3,input_value4):
         histfunc='avg',
         title= "Paniers marqués en fonction de l'âge"
     )
+    fig5.update_yaxes(title='{input_value4}')
 
     return fig,fig2,fig4,fig5
 
