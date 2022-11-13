@@ -125,4 +125,4 @@ Nous voyons que la manière de jouer à évoluer au cours des années en NBA. Le
 
 ## Auteurs 
 
-Camille Doré et Thomas Ekué 
+Camille Doré et Thomas Ekué Amouzouglo
