@@ -1,0 +1,5 @@
+pip install lxml
+pip install pandas
+pip install numpy
+pip install dash
+pip install plotly

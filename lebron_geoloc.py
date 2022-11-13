@@ -4,6 +4,7 @@ import time
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import Dash, html, dcc, Input, Output
+from dash.exceptions import PreventUpdate
 
 start = time.time()
 
@@ -32,46 +33,69 @@ df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'], format='%Y%m%d')
 
 # csv_data = df.to_csv('lebron_geoloc_clean.csv',encoding = 'utf8',index=False)
 
-# on rajoute des colonnes pour les graphs et compter le nombre de points
 
-# df['2PT_COMPTEUR']=0
-# df['3PT_COMPTEUR']=0
-# compteur2PT= 0
-# compteur3PT= 0
-# for index, value in df['SHOT_TYPE'].items():
-#     # print(index,'-',value)
-#     if value=='2PT Field Goal':
-#         # compteur2PT+=1
-#         # df['2PT_COMPTEUR'].at[index]=compteur2PT
-#         df['2PT_COMPTEUR'].at[index]= 1
-#     elif value== '3PT Field Goal':
-#         # compteur3PT+=1
-#         # df['3PT_COMPTEUR'].at[index]=compteur3PT
-#         df['3PT_COMPTEUR'].at[index]=1
-# print(df)
-
-# les graphs
-# dfline = df[['SHOT_TYPE','GAME_DATE']]
-# dfline ['compteur']=1
-# print (dfline)
-
-# fig = px.line(df,x='GAME_DATE',y='2PT_COMPTEUR',title='Evolution des shots en fonction des années')
-# fig.show()
-# fig2 = px.histogram(df,x='GAME_DATE',y='SHOT_TYPE',histfunc='count',color='SHOT_TYPE')
-# fig2.show()
-
-dfsaison={}
 # boucle pour query et avoir le bon format de date pour les débuts et fins de saison
+dicosaison={}
+dfinter = pd.DataFrame(columns=['Year','2PT Field Goal','3PT Field Goal'])
+dicointer={}
+# serie2pt = pd.Series()
+# serie3pt = pd.Series()
+# year = pd.Series()
 for year in range(2003,2018,1):
     start_date = str(year)+'-10'
     end_date = str(year+1) +'-05'
-    dfsaison[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
+    dicosaison[year]= df.query("GAME_DATE>=@start_date and GAME_DATE<=@end_date")
 
+l2pt =[]
+l3pt = []
+lyear = []
+for year, dataf in dicosaison.items():
+    value_count = dataf['SHOT_ZONE_RANGE'].value_counts(sort=False)
+    value_count2 = dataf['SHOT_ZONE_BASIC'].value_counts(sort=False)
+    # print(value_count,value_count2)
+    l2pt = np.append(l2pt,value_count2[3]).astype(int)
+    l3pt = np.append(l3pt,value_count[1]).astype(int)
+    lyear = np.append(lyear,year).astype(int)
+
+s2pt = pd.Series(l2pt)
+s3pt = pd.Series(l3pt)
+syear = pd.Series(lyear)
+dfinter = pd.concat([syear,s2pt,s3pt],keys=['Year', 'Mid-Range','3PT Field Goal(Above 24ft.)'],axis=1)
+dfinter = dfinter.drop([7,8,9,10])
+# print(dfinter)
+
+# les graphs
+fig = px.line(dfinter,x='Year',y='Mid-Range',title='Evolution des zones en fonction des années')
+
+color_list = px.colors.qualitative.Plotly
+color_dict = {
+    'zone_basic_color' : {
+    'Mid-Range': color_list[0], 'In The Paint (Non-RA)': color_list[1],
+    'Restricted Area': color_list[2], 'Left Corner 3': color_list[3],
+    'Above the Break 3': color_list[4],'Right Corner 3' :color_list[5] 
+    },
+    'zone_area_color' : {
+    'Right Side(R)': color_list[0], 'Left Side(L)': color_list[1],
+    'Center(C)': color_list[2], 'Right Side Center(RC)': color_list[3],
+    'Left Side Center(LC)': color_list[4]
+    },
+    'zone_range_color' : {
+    '8-16 ft.': color_list[0], '16-24 ft.': color_list[1],
+    'Less Than 8 ft.': color_list[2], '24+ ft.': color_list[3],
+    },
+}
 # la géolocalisation
 
-fig3 = px.scatter(dfsaison[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_BASIC')
-# fig3 = px.scatter(df,x='LOC_X',y='LOC_Y',color='SHOT_ZONE_AREA')
-# fig3 = px.scatter(df,x='LOC_X',y='LOC_Y',color='SHOT_ZONE_RANGE')
+fig3 = px.scatter(
+    dicosaison[2003],
+    x='LOC_X',
+    y='LOC_Y',
+    color='SHOT_ZONE_BASIC',
+    color_discrete_map = color_dict['zone_basic_color'],
+    title='Terrain de basket avec la géolocalisation de chaque panier marqué'
+)
+fig5 = px.scatter(dicosaison[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_AREA')
+fig6 = px.scatter(dicosaison[2003],x='LOC_X',y='LOC_Y',color='SHOT_ZONE_RANGE')
 
 def trace_terrain(fig3):
     # set axes ranges pour avoir la moitié du terrain qui nous intéresse
@@ -137,33 +161,50 @@ def trace_terrain(fig3):
 
     return fig3
 
+trace_terrain(fig3)
+trace_terrain(fig5)
+trace_terrain(fig6)
+# fig3.show()
+# fig5.show()
+# fig6.show()
 
 # dashboard
 # visit http://127.0.0.1:8050/ in your web browser.
 # app = dash.Dash() # On crée une instance de la classe Dash
 app = Dash(__name__)
 
+all_options = {
+    'Zone': ['SHOT_ZONE_BASIC','SHOT_ZONE_RANGE',  'SHOT_ZONE_AREA'],
+    'Color': [u'zone_basic_color', 'zone_range_color', 'zone_area_color']
+}
+
 app.layout = html.Div(children=[
 
     html.H1(children='NBA Dashboard geoloc'),
 
-    html.Label('Season : '),
+    # html.Label('Season : '),
+    dcc.RadioItems(
+        list(all_options.keys()),
+        'Zone',
+        id='zone-radio',#input1
+    ),
+    dcc.RadioItems(id='color-radio'),#input2 lié à input1
 
-    # my input 
+    # # my input 
      dcc.Slider(2003, 2017, 
         step=1,
         marks={
-          2003 : '2003-2004',
-          2004 : '2004-2005',
-          2005 : '2005-2006',
-          2006 : '2006-2007',
-          2007 : '2007-2008',
-          2008 : '2008-2009',
-          2009 : '2009-2010',
-          2014 : '2014-2015',
-          2015 : '2015-2016',
-          2016 : '2016-2017',
-          2017 : '2017-2018',
+            2003 : '2003-2004',
+            2004 : '2004-2005',
+            2005 : '2005-2006',
+            2006 : '2006-2007',
+            2007 : '2007-2008',
+            2008 : '2008-2009',
+            2009 : '2009-2010',
+            2014 : '2014-2015',
+            2015 : '2015-2016',
+            2016 : '2016-2017',
+            2017 : '2017-2018',
         },
         id='years-slider',
         value=2003
@@ -174,28 +215,67 @@ app.layout = html.Div(children=[
         id='graph1',
         figure=fig3
     ),
+    dcc.Checklist(
+        id='point-checklist2',
+        options=[
+            {'label':'3PTS', 'value':'3PT Field Goal(Above 24ft.)'},
+            {'label':'Mid-Range', 'value':'Mid-Range'},
+        ],
+    ),
+
+    dcc.Graph(
+        id='graph2',
+        figure=fig
+    ),
 
     html.Div(children='''
             Description of the graph above. Mouse over for details
     '''),
 ])
+@app.callback(
+    Output('color-radio', 'options'),
+    Input('zone-radio', 'value'))
+def set_color_options(selected_zone):
+    return [{'label': i, 'value': i} for i in all_options[selected_zone]]
 
 @app.callback(
-    Output(component_id='graph1', component_property='figure'),
-    # Output(component_id='graph2', component_property='figure'),
-    Input(component_id='years-slider', component_property='value'),
-    # Input(component_id='point-checklist2', component_property='value'),
-)
-def update_figure(input_value):
+    Output('color-radio', 'value'),
+    Input('color-radio', 'options'))
+def set_color_value(available_options):
+    return available_options[0]['value']
+
+@app.callback(
+    Output('graph1', 'figure'),
+    Input('color-radio', 'value'),
+    Input('zone-radio', 'value'),
+    Input('years-slider', 'value'))
+    
+def update_map(selected_zone,selected_color,input_value):
+
     fig3 = px.scatter(
-        dfsaison[input_value],
+        dicosaison[input_value],
         x='LOC_X',
         y='LOC_Y',
-        color='SHOT_ZONE_BASIC',
+        color=selected_zone,
+        color_discrete_map = color_dict[selected_color]
     )
     trace_terrain(fig3),
-    return fig3
-    
+    if input_value == 2004:
+        raise PreventUpdate
+    else:
+        return fig3
+
+@app.callback(
+    Output('graph2', 'figure'),
+    Input('point-checklist2','value'))   
+def update_figure(input_value2):
+    fig = px.line(
+        dfinter,
+        x = 'Year',
+        y = input_value2,
+        title='Evolution des type de shots en fonction des années',
+    )
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True) # RUN APP
