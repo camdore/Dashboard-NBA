@@ -115,7 +115,7 @@ Ce projet à pour but de visualiser des données sur les types de tirs effectué
 
 ### La saison 2017-2018
 
-![Positions des joueurs sur un terrain de basket](/assets/positions_basket.jpg)
+![Positions des joueurs sur un terrain de basket](projet-python/assets/positions_basket.jpg)
 
 Sur le premier graphique nous découvrons que les 10 meilleurs joueurs marquent en général beaucoup plus de paniers à 2 points que de paniers 3 points. Seul James Harden à un nombre de 3 points plus élevé que les 2 points. La proportion de lancer francs est très petite ce qui est normale puisque ces tirs sont accordés après une faute, et non marqués dans le jeu.
 
