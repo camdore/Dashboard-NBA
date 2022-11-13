@@ -89,7 +89,7 @@ Ce projet à pour but de visualiser des données sur les types de tirs effectué
 
 ### La saison 2017-2018
 
-![Positions des joueurs sur un terrain de basket](/assets/positions_basket.jpg)
+![Positions des joueurs sur un terrain de basket](projet-R/assets/positions_basket.jpg)
 
 Premier onglet de l'application:
 
