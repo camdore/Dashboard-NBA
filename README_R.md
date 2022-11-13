@@ -35,7 +35,7 @@ Assurez-vous d'installer les librairies suivantes par les commander:
 Pour installer l’application effectuer les instructions suivantes dans votre Git Bash: 
 
     $ cd Downloads
-    $ git clone https://git.esiee.fr/amouzoue/projetnba 
+    $ git clone https://git.esiee.fr/amouzoue/projetnba/projet-R
 
 ### Utilisation
 
