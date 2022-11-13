@@ -12,6 +12,15 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(lubridate)
+library(rsconnect)
+library(plotly)
+library(grid)
+library(jpeg)
+library(RCurl)
+
+courtImg.URL <- "https://thedatagame.files.wordpress.com/2016/03/nba_court.jpg"
+court <- rasterGrob(readJPEG(getURLContent(courtImg.URL)),
+                    width=unit(1,"npc"), height=unit(1,"npc"))
 
 # 1-Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -31,7 +40,7 @@ server <- function(input, output) {
     Lebronjames = read.csv("lebron_geoloc_clean.csv", header = TRUE, sep = ",")
     Lebronjames_shots <- select(Lebronjames, SHOT_TYPE, GAME_DATE)
     Lebronjames_shots$GAME_DATE <- year(ymd(Lebronjames_shots$GAME_DATE))
-    Lebronjames_shots$Points <- rep(1,8369)                                     # dim(Lebronjames_shots) = [1] 8369    2
+    Lebronjames_shots$Points <- rep(1,8368)                                     # dim(Lebronjames_shots) = [1] 8369    2
     Lebronjames_shots_tot = aggregate(Lebronjames_shots$Points, list(Lebronjames_shots$SHOT_TYPE,Lebronjames_shots$GAME_DATE), FUN = sum)
     colnames(Lebronjames_shots_tot ) <- c("Type_of_shot","Year","Points")
     
@@ -41,6 +50,12 @@ server <- function(input, output) {
     bl <- 1:13
     Lebron <- data.frame(year,PT_Field_Goal3,PT_Field_Goal2,bl)
     colnames(Lebron) <- c("Year","3PT Field Goal","2PT Field Goal","NA")
+    
+    # Lebron James geo shot over the years
+    
+    Lebron_geo_shots = select(Lebronjames, LOC_X, LOC_Y, GAME_DATE, SHOT_TYPE, SHOT_ZONE_AREA)
+    Lebron_geo_shots$GAME_DATE <- format(ymd(Lebron_geo_shots$GAME_DATE),'%Y-%m')
+    
 ####################################################################################      
     # Plot of 
     output$distPlot <- renderPlot({
@@ -48,7 +63,7 @@ server <- function(input, output) {
         ggplot(best_players, aes(x = Player, y = best_players[, input$shoot])) + 
         geom_bar(stat = "identity", fill = "steelblue") + 
         xlab("Players") + 
-        ylab( "shoots") +
+        ylab( "Points") +
         theme(text = element_text(size = 20))
 
          
@@ -92,19 +107,49 @@ server <- function(input, output) {
         theme(text = element_text(size = 20))
       
     })
+################################################################################################################
     
+    output$plottt <- renderPlot({
+      
+  
+      ggplot(nba18, aes(x=Age, fill=Pos)) + geom_histogram(bins = 23) + theme(text = element_text(size = 20)) + 
+        xlab("Age") + 
+        ylab("Number of player") +
+        theme(text = element_text(size = 20))
+    })
+    
+
 #################################################################################################################    
     
     output$plot3 <- renderPlot({ 
       
       season_shots = Lebron_geo_shots[Lebron_geo_shots$GAME_DATE >= paste0(input$shoot_year,-10) & Lebron_geo_shots$GAME_DATE <=paste0(input$shoot_year+1,-4) , ]
       
+      if(input$shot_zones== "5"){
       
-      gg_court + geom_point(data = season_shots, aes(LOC_X, LOC_Y)) 
       
+      ggplot(season_shots, aes(x=LOC_X, y=LOC_Y)) + 
+        annotation_custom(court, -250, 250, -50, 420) +
+        geom_point(aes(color = SHOT_ZONE_AREA )) +
+        xlim(-250, 250) +
+        ylim(-50, 420)+
+        theme(text = element_text(size = 20))+
+          xlab("X axis position")+
+          ylab("Y axis position")}
+      
+      else{
+        
+          ggplot(season_shots, aes(x=LOC_X, y=LOC_Y)) + 
+          annotation_custom(court, -250, 250, -50, 420) +
+          geom_point(aes(color = SHOT_TYPE )) +
+          xlim(-250, 250) +
+          ylim(-50, 420)+
+          theme(text = element_text(size = 20))+
+          xlab("X axis position")+
+          ylab("Y axis position")}
       
     })
-      
+    
 }
 
 
