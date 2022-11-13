@@ -38,21 +38,31 @@ server <- function(input, output) {
     
     # Read Lebron Geoloc data
     Lebronjames = read.csv("lebron_geoloc_clean.csv", header = TRUE, sep = ",")
-    Lebronjames_shots <- select(Lebronjames, SHOT_TYPE, GAME_DATE)
-    Lebronjames_shots$GAME_DATE <- year(ymd(Lebronjames_shots$GAME_DATE))
-    Lebronjames_shots$Points <- rep(1,8368)                                     # dim(Lebronjames_shots) = [1] 8369    2
-    Lebronjames_shots_tot = aggregate(Lebronjames_shots$Points, list(Lebronjames_shots$SHOT_TYPE,Lebronjames_shots$GAME_DATE), FUN = sum)
-    colnames(Lebronjames_shots_tot ) <- c("Type_of_shot","Year","Points")
     
-    PT_Field_Goal3 = filter(Lebronjames_shots_tot, Type_of_shot=="3PT Field Goal")$Points
-    PT_Field_Goal2 = filter(Lebronjames_shots_tot, Type_of_shot=="2PT Field Goal")$Points
-    year <- unique(Lebronjames_shots_tot[,c("Year")])
-    bl <- 1:13
-    Lebron <- data.frame(year,PT_Field_Goal3,PT_Field_Goal2,bl)
-    colnames(Lebron) <- c("Year","3PT Field Goal","2PT Field Goal","NA")
+    Lebronjames_shots_m <- select(Lebronjames, SHOT_TYPE, GAME_DATE, SHOT_ZONE_BASIC, SHOT_ZONE_RANGE)
+    Lebronjames_shots_m$GAME_DATE <- year(ymd(Lebronjames_shots_m$GAME_DATE))
+    
+        # data frame (2 points in Mid-Range)
+        Lebronjames_shots_md <- filter(Lebronjames_shots_m,SHOT_TYPE=="2PT Field Goal", SHOT_ZONE_BASIC=="Mid-Range")
+        Lebronjames_shots_md$Points <- rep(1,1869)              # On a 1869 lignes 
+        Lebronjames_shots_md = select(Lebronjames_shots_md,GAME_DATE,SHOT_TYPE,Points )
+        Lebronjames_shots_md_tot = aggregate(Lebronjames_shots_md$Points, list(Lebronjames_shots_md$SHOT_TYPE,Lebronjames_shots_md$GAME_DATE), FUN = sum)
+        # data frame (3 points in 24+ ft)
+        Lebronjames_shots_ab <- filter(Lebronjames_shots_m,SHOT_TYPE=="3PT Field Goal", SHOT_ZONE_RANGE=="24+ ft.")
+        Lebronjames_shots_ab$Points <- rep(1,1249)              # On a 1249 lignes
+        Lebronjames_shots_ab = select(Lebronjames_shots_ab,GAME_DATE,SHOT_TYPE,Points )
+        Lebronjames_shots_ab_tot = aggregate(Lebronjames_shots_ab$Points, list(Lebronjames_shots_ab$SHOT_TYPE,Lebronjames_shots_ab$GAME_DATE), FUN = sum)
+      
+        # New dataframe with usefull data (2 points in Mid-Range,3 points in 24+ ft)
+        colnames(Lebronjames_shots_ab_tot ) <- c("Type_of_shot","Year","Points")
+        colnames(Lebronjames_shots_md_tot ) <- c("Type_of_shot","Year","Points")
+        year <- unique(Lebronjames_shots_ab_tot[,c("Year")])
+        bl <- 1:13
+        Lebron <- data.frame(year,PT_Field_Goal3,PT_Field_Goal2,bl)
+        colnames(Lebron) <- c("Year","3PT Field Goal(Above 24 ft)","2PT Field Goal(in Mid-Range )","NA")  # Nouvelle data frame
+
     
     # Lebron James geo shot over the years
-    
     Lebron_geo_shots = select(Lebronjames, LOC_X, LOC_Y, GAME_DATE, SHOT_TYPE, SHOT_ZONE_AREA)
     Lebron_geo_shots$GAME_DATE <- format(ymd(Lebron_geo_shots$GAME_DATE),'%Y-%m')
     
@@ -99,7 +109,7 @@ server <- function(input, output) {
       
       Lebronjames_shots_tot_fin = pivot_longer(select(Lebron, Year, input$shoot_leb ), !c(Year), names_to = "Type_of_shot",values_to = "Points") 
      
-      ggplot(Lebronjames_shots_tot_fin , aes(x = Year , y  = Points, color= `Type_of_shot`)) + 
+      ggplot(Lebronjames_shots_tot_fin , aes(x = Year , y  = Points, color= `Type_of_shot`, linetype=`Type_of_shot`)) + 
         geom_line() +
         geom_point()+
         xlab("Year")+
@@ -141,7 +151,7 @@ server <- function(input, output) {
         
           ggplot(season_shots, aes(x=LOC_X, y=LOC_Y)) + 
           annotation_custom(court, -250, 250, -50, 420) +
-          geom_point(aes(color = SHOT_TYPE )) +
+          geom_point(aes(color = SHOT_TYPE)) +
           xlim(-250, 250) +
           ylim(-50, 420)+
           theme(text = element_text(size = 20))+
