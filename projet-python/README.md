@@ -25,26 +25,25 @@ Ci-dessous les instructions et les précautions nécessaires pour faire tourner 
 Vous devez d’abord vous assurer d’avoir la dernière version de Python installée sur votre machine. 
 Si ce n’est pas le cas vous pouvez suivre les instructions d'installation [ici](https://www.python.org/downloads/).
 
-Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
-
-    $ python -m pip install -r requirements.txt 
-
 ### Installation 
 
 Pour installer l’application effectuer l’instruction suivante : 
 
-    $ git clone https://git.esiee.fr/amouzoue/projetnba 
+    git clone https://git.esiee.fr/amouzoue/projetnba 
 
+Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
+
+    python -m pip install -r requirements.txt 
 ### Utilisation
 Pour lancer l’application sur Windows taper l’instruction suivante depuis le terminal : 
 
-    $ cd /path /projetnba / projet-python
-    $ python main.py 
+    cd /path /projetnba / projet-python
+    python main.py 
 
 Pour lancer l’application sur Linux/MacOS taper l’instruction suivante depuis le terminal : 
 
-    $ cd /path /projetnba 
-    $ python3 main.py 
+    cd /path /projetnba 
+    python3 main.py 
 
 L’application Dashboard tourne sur n'importe quel navigateur à l’adresse suivante : http://127.0.0.1:8050/
 
