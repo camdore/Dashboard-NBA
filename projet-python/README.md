@@ -31,20 +31,21 @@ Pour installer l’application effectuer l’instruction suivante :
 
     git clone https://git.esiee.fr/amouzoue/projetnba 
 
-Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante (d'abord se placer dans le répertoire du projet) : 
+Placez vous d'abord dans le repertoire approprié avec la commande suivante : 
 
     cd /path /projetnba / projet-python
+
+Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
+   
     python -m pip install -r requirements.txt 
 
 ### Utilisation
 Pour lancer l’application sur Windows taper l’instruction suivante depuis le terminal : 
 
-    cd /path /projetnba / projet-python
     python main.py 
 
 Pour lancer l’application sur Linux/MacOS taper l’instruction suivante depuis le terminal : 
 
-    cd /path /projetnba 
     python3 main.py 
 
 L’application Dashboard tourne sur n'importe quel navigateur à l’adresse suivante : http://127.0.0.1:8050/
