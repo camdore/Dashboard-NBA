@@ -38,7 +38,7 @@ Pour installer l’application effectuer l’instruction suivante :
 ### Utilisation
 Pour lancer l’application sur Windows taper l’instruction suivante depuis le terminal : 
 
-    $ cd /path /projetnba 
+    $ cd /path /projetnba / projet-python
     $ python main.py 
 
 Pour lancer l’application sur Linux/MacOS taper l’instruction suivante depuis le terminal : 
