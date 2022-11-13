@@ -92,21 +92,21 @@ Ce projet à pour but de visualiser des données sur les types de tirs effectué
 
 Premier onglet de l'application:
 
-    À l'aide de deux graphique nous découvrons que les 10 meilleurs joueurs marquent en général beaucoup plus de paniers à 2 points que de paniers 3 points. Seul James Harden à un nombre de 3 points plus élevé que les 2 points. La proportion de lancer francs ("Free Throws") est très petite ce qui est normale puisque ces tirs sont accordés après une faute, et non marqués dans le jeu.
+À l'aide de deux graphique nous découvrons que les 10 meilleurs joueurs marquent en général beaucoup plus de paniers à 2 points que de paniers 3 points. Seul James Harden à un nombre de 3 points plus élevé que les 2 points. La proportion de lancer francs ("Free Throws") est très petite ce qui est normale puisque ces tirs sont accordés après une faute, et non marqués dans le jeu.
 
 Deuxièmre onglet de l'application:
 
-    Sur le 2e graphique nous voyons que le type de points marqués dépend de la position des joueurs. Ainsi nous observons que les paniers à 3 points sont marqués en majorité par les Shooting Guard (SG) et les Point Guard(PG). Ce qui est logique puisqu'ils sont placés au bord de la ligne des 3 points. Pour les paniers à 2 points ils sont inscrits en majorité par les Center (C) qui sont placés au abord du panier. Les lancers francs ne sont pas influencés par la postion et dépendent uniquement de l'adresse du joueurs qui les tire.
+Sur le 2e graphique nous voyons que le type de points marqués dépend de la position des joueurs. Ainsi nous observons que les paniers à 3 points sont marqués en majorité par les Shooting Guard (SG) et les Point Guard(PG). Ce qui est logique puisqu'ils sont placés au bord de la ligne des 3 points. Pour les paniers à 2 points ils sont inscrits en majorité par les Center (C) qui sont placés au abord du panier. Les lancers francs ne sont pas influencés par la postion et dépendent uniquement de l'adresse du joueurs qui les tire.
 
 Troisième onglet de l'application:
 
-    Sur le 3e graphique nous voyons que l'efficicaté des tirs ne change pas malgré l'âge contre ce que l'on auraot pu penser, tout comme le nombre de paniers tentés. Nous remarquons cependant une anomalie pour les joueurs de 39 ans. Cela est expliqué par le fait qu'il n'y en a qu'un seul donc la moyenne est faussée.
+Sur le 3e graphique nous voyons que l'efficicaté des tirs ne change pas malgré l'âge contre ce que l'on auraot pu penser, tout comme le nombre de paniers tentés. Nous remarquons cependant une anomalie pour les joueurs de 39 ans. Cela est expliqué par le fait qu'il n'y en a qu'un seul donc la moyenne est faussée.
 
 ### Carrière de Lebron James
 
 Quatrième onglet de l'application:
 
-    La principal évolution à lieu sur le fait que la zone Mid-Range est délaissée au fil des années. Lebron James marque de plus en plus derrière la ligne des 3 points malgré sa position de Power Forward ou Small Forward qui est proche du panier. Bien sur il garde quand même une concentration importante de tirs dans les zones proches du panier. Cela est confirmé par le graphique en dessous avec le nombre de 3 point qui fini par dépasser le nombre de tirs dans la Mid-Range.
+La principal évolution à lieu sur le fait que la zone Mid-Range est délaissée au fil des années. Lebron James marque de plus en plus derrière la ligne des 3 points malgré sa position de Power Forward ou Small Forward qui est proche du panier. Bien sur il garde quand même une concentration importante de tirs dans les zones proches du panier. Cela est confirmé par le graphique en dessous avec le nombre de 3 point qui fini par dépasser le nombre de tirs dans la Mid-Range.
 
 ### Conclusion 
 
