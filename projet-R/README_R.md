@@ -28,6 +28,7 @@ Assurez-vous d'installer les librairies suivantes par les commander:
     >install.packages(shinythemes)
     >install.packages(grid)
     >install.packages("devtools")
+    >library(rsconnect)
 
 
 ### Installation 
