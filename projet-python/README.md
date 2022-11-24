@@ -35,10 +35,6 @@ Placez vous d'abord dans le repertoire approprié avec la commande suivante :
 
     cd /path /projetnba / projet-python
 
-Pour éviter tout bug d'abord effectuer la commande suivante : 
-
-    pip list --format=freeze > requirements.txt 
-
 Pour s’assurer que toutes les librairies suivantes soient installées sur votre machine exécuter la commande suivante : 
    
     python -m pip install -r requirements.txt 
@@ -121,7 +117,7 @@ Dans la fonction `add_shape()`, le paramètre path n'accepte pas les arcs de cer
 
 ## Rapport d'analyse
 
-### Présentaion
+### Présentation
 
 Ce projet à pour but de visualiser des données sur les types de tirs effectués lors de la saison 2017-2016. Il à également pour but d'observer l'évolution du jeu en NBA sur les 10 dernières années à travers les données d'un des meilleurs joueur de l'histoire de la NBA : Lebron James.
 
