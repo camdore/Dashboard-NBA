@@ -1,5 +1,5 @@
-pip install lxml
-pip install pandas
-pip install numpy
-pip install dash
-pip install plotly
+lxml==4.9.1
+pandas==1.5.0
+numpy==1.22.2
+dash==2.6.2
+plotly==5.10.0
